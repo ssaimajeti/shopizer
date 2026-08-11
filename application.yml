@@ -1,0 +1,113 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.shopizer</groupId>
+    <artifactId>shopizer</artifactId>
+    <version>3.2.6</version>
+    <packaging>jar</packaging>
+    <name>Shopizer Application</name>
+    <description>E-commerce solution upgraded to Java 17+, Spring Boot 3.2.6</description>
+
+    <properties>
+        <java.version>17</java.version> <!-- Upgraded Java version to 17 LTS -->
+        <maven.compiler.source>17</maven.compiler.source> <!-- Ensure Maven uses Java 17 -->
+        <maven.compiler.target>17</maven.compiler.target>
+        <spring-boot.version>3.2.6</spring-boot.version> <!-- Spring Boot upgraded from 2.5.12 to 3.2.6 -->
+        <spring-framework.version>6.1.5</spring-framework.version> <!-- Spring Framework introduced at 6.1.5 -->
+        <springdoc-openapi.version>2.5.0</springdoc-openapi.version> <!-- Upgraded: replacing Springfox with springdoc-openapi -->
+        <guava.version>33.0.0-jre</guava.version> <!-- Updated Guava to latest secure version -->
+        <commons-collections4.version>4.4</commons-collections4.version> <!-- Updated Commons Collections to latest -->
+        <jackson.version>2.17.1</jackson.version> <!-- Latest Jackson-databind patch -->
+    </properties>
+
+    <dependencies>
+        <!-- Spring Boot Starter Dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+        <!-- Spring Framework core (version aligned via Spring Boot Bill of Materials) -->
+
+        <!-- Jakarta EE namespaces are now required by Spring Boot 3.x+ -->
+
+        <!-- Replace Swagger/Springfox with springdoc-openapi -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc-openapi.version}</version>
+        </dependency>
+        <!-- Removed old Springfox dependencies as they are incompatible/deprecated with Spring Boot 3.x -->
+        <!--
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+        -->
+
+        <!-- Jackson updated to latest patch -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <!-- Guava updated to latest stable version -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+
+        <!-- Apache Commons Collections updated -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${commons-collections4.version}</version>
+        </dependency>
+
+        <!-- Additional dependencies as previously defined by the project can be listed here -->
+
+        <!-- Provided for cloud-native/12-factor future refactoring, no change for this release -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Spring Boot Maven Plugin -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <!-- No additional config needed for Java 17/21 -->
+            </plugin>
+            <!-- Maven Compiler Plugin: Compile to Java 17 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <release>${java.version}</release>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Note: Jakarta EE API dependencies may need to be added in project source as necessary, 
+         due to migration from javax.* to jakarta.* namespaces in Spring Boot 3.x/Spring Framework 6.x -->
+
+</project>
