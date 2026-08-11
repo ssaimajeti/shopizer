@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: shopizer
+  datasource:
+    url: jdbc:mysql://localhost:3306/shopizer
+    username: shopizer
+    password: shopizer
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false # recommended default from Spring Boot 3
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    com.shopizer: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
+# Springdoc OpenAPI configuration - replaces Springfox/Swagger 2.x for Spring Boot 3.x
+springdoc:
+  api-docs:
+    enabled: true  # Enables OpenAPI documentation endpoint
+    path: /v3/api-docs # Default path for OpenAPI 3 docs
+  swagger-ui:
+    enabled: true  # Enables the Swagger UI
+    path: /swagger-ui.html # Swagger UI path (default)
+    operationsSorter: method # (new key, see docs)
+
+# Deprecated Swagger/Springfox properties have been removed as Spring Boot 3.x requires 'springdoc-openapi'
+
+# Jakarta EE namespaces: No explicit key since migration handled in codebase
+
+# Java 17 is required at runtime for Spring Boot 3.x, but JVM version override is handled outside this config
+
+# Additional recommended Spring Boot 3.x settings
+spring:
+  main:
+    allow-bean-definition-overriding: false # (default; explicit for clarity)
+    web-application-type: servlet # (default; explicit for clarity)
+
+# All above values reflect Spring Boot 3.2.x compatible configuration.
