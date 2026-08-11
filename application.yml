@@ -1,0 +1,33 @@
+FROM eclipse-temurin:17-jdk AS build
+# Upgraded Java base image to Temurin 17 LTS for compatibility with Spring Boot 3.x and Java 17 requirements
+
+WORKDIR /app
+
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline
+
+COPY src ./src
+
+RUN ./mvnw package -DskipTests
+# Build the application with Java 17 and skip tests for faster image build
+
+FROM eclipse-temurin:17-jre
+# Use Java 17 JRE in the runtime container
+
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
+
+EXPOSE 8080
+
+ENV JAVA_OPTS=""
+# JAVA_OPTS can be overridden at runtime for additional JVM options
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# Use sh wrapper for compatibility with overridable JAVA_OPTS
+
+# Note:
+# - Updated both build and runtime stages to use Eclipse Temurin 17 images (LTS).
+# - Any usage of Java 11 has been replaced as required by the upgrade context.
+# - If Java 21 is determined to be compatible, replace '17' with '21' above.
