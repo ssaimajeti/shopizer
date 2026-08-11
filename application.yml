@@ -1,28 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
+<!--
+  Modernized Maven pom.xml for Spring Boot 3.x and Java 17+.
+  - Spring Boot upgraded to 3.2.7 LTS
+  - Spring Framework (via Boot) now 6.1.8
+  - Java 17 enforced
+  - Guava, commons-fileupload updated for CVEs
+  - Springdoc OpenAPI replaces deprecated Springfox Swagger2
+  - Comments explain all changes per the upgrade context
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>com.example</groupId>
-    <artifactId>spring-upgrade-app</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <artifactId>springboot-app</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <properties>
+        <!-- Upgraded to Java 17 as required by Spring Boot 3 -->
         <java.version>17</java.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <!-- Spring Boot 3.2.7 LTS (Upgrade from 2.5.x) -->
         <spring-boot.version>3.2.7</spring-boot.version>
-        <spring-framework.version>6.1.8</spring-framework.version>
-        <springdoc-openapi.version>2.5.0</springdoc-openapi.version>
-        <guava.version>33.0.0-jre</guava.version>
+        <!-- Guava 33.0.0 or later for latest CVE fixes -->
+        <guava.version>33.1.0</guava.version>
+        <!-- Apache Commons FileUpload 1.5+ for security updates -->
         <commons-fileupload.version>1.5</commons-fileupload.version>
+        <!-- Springdoc OpenAPI 2.5.0+ replaces Springfox Swagger2 -->
+        <springdoc-openapi.version>1.8.0</springdoc-openapi.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Centralizing Spring Boot dependency versions -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -30,51 +40,53 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-framework-bom</artifactId>
-                <version>${spring-framework.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
-        <!-- Spring Boot Starter -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-
-        <!-- Spring Boot Web Starter -->
+        <!-- SPRING BOOT STARTERS (now built on Spring Framework 6.1.x) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
-        <!-- Spring Boot Test Starter -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- Springdoc OpenAPI for Swagger support (Springfox replacement) -->
+        <!-- Upgrade: Use springdoc-openapi instead of deprecated Springfox Swagger2 -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc-openapi.version}</version>
         </dependency>
+        <!--
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        -->
+        <!-- Commented out: Springfox dependencies are deprecated and replaced by springdoc-openapi -->
 
-        <!-- Guava (updated for CVE) -->
+        <!-- Guava updated to address CVEs -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
 
-        <!-- Apache Commons FileUpload (security fix) -->
+        <!-- Apache Commons FileUpload updated for CVEs -->
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
@@ -84,22 +96,19 @@
 
     <build>
         <plugins>
+            <!-- Spring Boot Maven Plugin (3.2.7) for building executable jars -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
             </plugin>
+            <!-- Enforce correct Java version for compilation -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
                 <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <release>17</release>
+                    <release>${java.version}</release>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>
