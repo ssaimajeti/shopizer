@@ -1,19 +1,25 @@
-# Upgrade Execution Tasks
+# Upgrade Java — Task List
 
-**[A1]** Inventory all Maven `pom.xml` files listed in the CAST source file inventory (Appendix: `shopizer-3.2.5/pom.xml`, `shopizer-3.2.5/sm-core/pom.xml`, `shopizer-3.2.5/sm-shop/pom.xml`, `shopizer-3.2.5/sm-core-model/pom.xml`, `shopizer-3.2.5/sm-core-modules/pom.xml`, `shopizer-3.2.5/sm-shop-model/pom.xml`) (✅).
+1. **Determine Build Tool**  
+   - Directly review repo or CI: build tool not provided in CAST MCP. (Research §1; Query Log #2, #3) ❌
 
-**[A2]** Review and update Java version in every `pom.xml`:
-- Add/replace `maven-compiler-plugin` and/or Maven toolchains to require Java 17 or Java 21.
+2. **Upgrade Project JDK Version**  
+   - Update project JDK requirements to Java 17 or 21 across all build configs. (Research §1; Query Log #2)
 
-**[A3]** Build each module targeting Java 17.
-- If all modules compile and tests pass, repeat for Java 21.
+3. **Library/Framework Compatibility Audit**  
+   - Validate all frameworks/libraries in use (Spring, Hibernate, AWS SDK, Google Cloud Storage) against minimum supported versions for Java 17/21. (Research §1; Query Log #2, #4)
 
-**[A4]** Investigate failing modules for incompatible dependencies, plugins, or source usages.
-- Cross-reference any non-obvious failures against CAST’s quality and cloud-readiness rules (Appendix).
-- Refactor source as needed, especially where code is likely to rely on language internals or deprecated APIs.
+4. **Codebase Compatibility Review**  
+   - Refactor or patch code where deprecated/removed Java 11 APIs are detected.
+   - Remediate cases requiring new language features (Records, Sealed Interfaces, etc., if required).
+   - Address all listed quality/security issues with risk of becoming blocking defects under Java 17/21 (Research §2; Query Log #5, #7).
 
-**[A5]** Run integration and regression tests externally to ensure application-level compatibility post-upgrade.
+5. **Upgrade & Retest Application**  
+   - Build and run app under Java 17/21, resolve any issues.
+   - Run regression tests for all listed REST entry points (Research §3; Query Log #8).
 
-**[A6]** Document which submodules build and run cleanly, which require additional changes, and disseminate results to the product and dev teams.
+6. **Documentation & Future Monitoring**  
+   - Update system architecture and deployment docs to confirm Java 17/21 baseline.
+   - Re-sync CAST MCP analysis post-upgrade to assess new quality/security posture.
 
-**[A7]** Flag and communicate any source, plugin, or dependency issues that CAST did not model, including Java-specific test or deployment pipeline failures not visible via code analysis.
+*Note: Absence of batch/message-driven entry points confirmed per current transaction inventory (Research §3; Query Log #8).*
