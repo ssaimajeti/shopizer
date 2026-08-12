@@ -18,6 +18,7 @@
 		<coverage.lines>.00</coverage.lines>
 		<coverage.branches>.00</coverage.branches>
 		<google-client-maps-services-version>0.1.6</google-client-maps-services-version>
+		<java.version>17</java.version>
 	</properties>
 
 	<dependencies>
