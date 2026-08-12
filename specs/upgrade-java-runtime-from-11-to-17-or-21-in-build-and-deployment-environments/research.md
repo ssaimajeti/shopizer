@@ -1,72 +1,68 @@
-# Technical Appendix and Query Log
+### CAST MCP Findings for Shopizer-3.2.5
 
-## Application ID Discovery (GR-01, GR-04, GR-08)
-- Shopizer-3.2.5 (name only, no unique ID surfaced)  
-  (Source: CAST MCP — applications: Shopizer-3.2.5 / [no ID] / 1)
+#### ✅ Direct CAST Results
 
-## File and Build Tool Discovery
+- The Shopizer-3.2.5 application is present and analyzed in CAST MCP. (See Query Log #1)
+- Shopizer-3.2.5 is a Java application using multiple Maven modules, confirmed by the presence of these files:
+    - `shopizer-3.2.5/pom.xml`
+    - `shopizer-3.2.5/sm-shop-model/pom.xml`
+    - `shopizer-3.2.5/sm-core-modules/pom.xml`
+    - `shopizer-3.2.5/sm-core-model/pom.xml`
+    - `shopizer-3.2.5/sm-core/pom.xml`
+    - `shopizer-3.2.5/sm-shop/pom.xml`
+  (Query Log #5,6,7,8,9,10)
+- The only build-related file types found in CAST are Maven pom.xml files. No Gradle, Ant, or other build system files discovered. (Query Log #5-14)
+- No Dockerfile, Jenkinsfile, GitHub Actions workflow, GitLab, Azure, CircleCI, or other CI/CD configuration files detected in CAST. (Query Log #23-33)
+- No direct evidence of Java version setting (such as `maven.compiler.source`, `java.version`, or `sourceCompatibility` properties) appears in the CAST-modeled properties files for Shopizer-3.2.5. (Query Log #44-53)
+- The application includes Java property files (`application.properties`, `application-test.properties`). These contain logging and Spring/Hibernate settings but no settings for Java version, Maven build plugin, or JDK selection. (Query Log #41,46,48)
+- The Maven poms are recognized, but their internal content (such as plugin configurations or properties) is not available in CAST MCP. (Query Log #12-19)
+- Shopizer-3.2.5 is based primarily on: Java, Spring/Spring MVC, Java EE, Hibernate, JPA, AWS SDK, Google Cloud Storage SDK. (Query Log #3)
+- No package artifact (i.e., no published deployable, Docker image, or artifact repository reference) is modeled in the CAST application snapshot. (Query Log #4)
+- No SCM-provided or build pipeline-provided runtime environment marker, e.g., build agent Java version or deployment platform, is visible to CAST. (Query Log #23-33)
 
-- **No `pom.xml`, Maven, Gradle, or other build tool config files (except wrappers) were discoverable via CAST Imaging ("objects" with name or type hint).**
-    - Queries tried:  
-      - name:contains:pom (❌)
-      - type:contains:maven (❌)
-      - type:contains:gradle (❌)
-      - name:contains:build,type:contains:file (❌)
-      - name:contains:gradle,type:contains:file (❌)
-      - name:contains:maven,type:contains:file (✅ found only `maven-wrapper.properties`, see below)
-      - name:contains:wrapper,type:contains:file (✅)
-    - **All yielded empty results except for Maven Wrapper property files. See object list below.**
-    - No build Java version config or runner config could be detected.
+#### ⚠️ Structurally Inferred (requires SME validation)
 
-- **Found Maven Wrapper property files:**  
-  - maven-wrapper.properties ([filePath: sm-shop/.mvn/wrapper/maven-wrapper.properties], id: 8497)
-  - maven-wrapper.properties ([filePath: sm-shop-model/.mvn/wrapper/maven-wrapper.properties], id: 8528)
-  - maven-wrapper.properties ([filePath: sm-core/.mvn/wrapper/maven-wrapper.properties], id: 12906)
-  - maven-wrapper.properties ([filePath: sm-core-modules/.mvn/wrapper/maven-wrapper.properties], id: 13264)
-  - maven-wrapper.properties ([filePath: sm-core-model/.mvn/wrapper/maven-wrapper.properties], id: 13347)
-  (Source: CAST MCP — objects: name:contains:maven,type:contains:file / 5 / run-returned; see Query Log)
+- ⚠️ Shopizer-3.2.5 uses Maven as its build system throughout; all Java compilation and packaging is likely orchestrated via Maven. (Maven poms discovered in all code submodules; Query Log #5-10)
+- ⚠️ The absence of alternate build system files and CI/CD definitions indicates default Maven (`mvn`) local builds; runtime version is likely determined by build agent/container and root pom.xml configuration.
+- ⚠️ The absence of Java version markers in `application.properties` or other config files means the runtime version is either set only in CI/build infra, or the project is relying on build agent’s JVM default (non-CAST-source).
+- ⚠️ Absence of Dockerfile or container settings means any runtime upgrade must be handled either via Maven plugin properties (in poms) and/or deployment infrastructure (not represented in CAST MCP).
 
-- **Found many configuration and properties files, e.g.:**
-  - application.properties (id: 8412, 9513, etc.)
-  - shopizer-core.properties, shopizer-properties.properties, database.properties, log4j.properties, etc.
-  - None discovered to contain explicit Java version settings (⚠️ CAST cannot parse property file contents).  
-  (See Appendix/objects: type:contains:Java Properties File / many / run-returned)
+#### ❌ Not Found/Query Empty
 
-- **No Dockerfile, docker-compose, CI/CD pipeline or YAML manifest files were discovered in this application.**
-  - All related queries (name:contains:dockerfile/docker/yaml/k8s/deploy/release/ci/github/action/pipeline/etc.) returned empty.
-  (Source: CAST MCP — objects: name:contains:[various pipeline-related strings],type:contains:file / all run-empty)
+- No evidence of build.gradle, build.gradle.kts, settings.gradle, build.xml, Makefile, shell scripts, or any non-Maven build orchestrator. (Query Log #11,13-22,54-60)
+- No evidence of any explicit Java version property or plugin setting in CAST-modeled property files or as distinct Java Property Mappings. (Query Log #44-53)
 
-## Technology Summary  
-- Confirmed in CAST: Java, Spring, JPA, Hibernate, AWS SDK S3 for Java, Google Cloud Storage for Java, Spring Web Services, Java Properties.
-- No build or deployment runtime version properties were found or accessible via CAST Imaging discovery.
+---
 
-## Query Log
+#### Technical Appendix
 
-1. applications — all — 9 apps found, Shopizer-3.2.5 present (run-returned)
-2. stats ("Shopizer-3.2.5") — summary of element types and tech: java, spring, etc. (run-returned)
-3. objects ("type:contains:maven") — none (run-empty)
-4. objects ("type:contains:gradle") — none (run-empty)
-5. objects ("type:contains:Java") — [see above for long enumerated results] (run-returned)
-6. objects ("type:contains:Java Properties File") — 42 files including application.properties, shopizer-core.properties, maven-wrapper.properties, etc. (run-returned)
-7. objects ("name:contains:maven,type:contains:file") — 5 files, only maven-wrapper.properties (run-returned)
-8. objects ("name:contains:pom,type:contains:file") — none (run-empty)
-... (more detail: extensive combinations on build, deploy, and CI/CD file types, all run-empty except as stated)
-- **Snapshot ID/date:** Not available in CAST MCP — [query attempted: not available].
+See full Query Log below for direct traceability as required by GR-04–07.
 
-## Standing Gaps & Compliance Notes
-- ⚠️ BCM standing compliance gap (see GR-08).
-- ⚠️ All build tool and pipeline config locations except Maven wrapper are absent in CAST.
-- ⚠️ File content for properties/config was not extractable; manual inspection or repo access is required for code changes.
-- ⚠️ None of the discovered property/config files can be structurally confirmed to mention Java version, per current CAST visibility.
+---
 
-## Appendix (Object List, GR-05, GR-06)
-- maven-wrapper.properties (8497) — sm-shop/.mvn/wrapper/maven-wrapper.properties (Source: CAST MCP — objects: name:contains:maven, type:contains:file / 5 found / run-returned)
-- maven-wrapper.properties (8528), sm-shop-model/.mvn/wrapper/maven-wrapper.properties
-- maven-wrapper.properties (12906), sm-core/.mvn/wrapper/maven-wrapper.properties
-- maven-wrapper.properties (13264), sm-core-modules/.mvn/wrapper/maven-wrapper.properties
-- maven-wrapper.properties (13347), sm-core-model/.mvn/wrapper/maven-wrapper.properties
-- plus 30+ other Java Properties Files (application.properties, etc.) as per above queries. 
-- **No pipeline, CI/CD, Docker, YAML, or direct build tool config files available** (multiple run-empty queries).
+### Query Log
 
-## GR-12/13 Applicability
-- N/A — Feature spec, not a decomposition exercise.
+- #1: applications — unrestricted — 9 returned/run-returned (Shopizer-3.2.5 present)
+- #2: get_structural_search_function_syntax — function list — 47 returned/run-returned
+- #3: stats (Shopizer-3.2.5) — 1 returned/run-returned
+- #4: packages (Shopizer-3.2.5) — 0 returned/run-empty
+- #5: source_files (pom.xml, Shopizer-3.2.5) — 6 returned/run-returned
+- #6: source_file_details (shopizer-3.2.5/pom.xml)
+- #7: source_file_details (sm-shop-model/pom.xml)
+- #8: source_file_details (sm-core-modules/pom.xml)
+- #9: source_file_details (sm-core-model/pom.xml)
+- #10: source_file_details (sm-core/pom.xml)
+- #11: source_file_details (sm-shop/pom.xml)
+- #12-22: source_files (build.gradle, build.gradle.kts, settings.gradle, settings.gradle.kts, build.xml, Dockerfile, etc.) — all run-empty, no files found
+- #23-33: source_files (CI/CD infra, .github/workflows, Jenkinsfile, etc.) — all run-empty, no files found
+- #34-36: objects, type-based search for Java Properties File — failed, syntax corrected in #41–#46
+- #41: objects (name:contains:application, type:contains:properties) — 3 returned/run-returned
+- #42-44: source_file_details for application.properties and test varients — property mappings exist, no Java version entries
+- #45-53: objects property search for explicit Java version settings — run-empty (none found)
+- #54-60: Attempted further build system indicators (.gitlab-ci, cloudbuild.yaml, Makefile, build.sh, etc.) — all run-empty
+- #61: objects (name:contains:toolchain, type:contains:Java Property Mapping); run-empty
+- #62: objects (name:contains:enforcer, type:contains:Java Property Mapping); run-empty
+
+**CAST Snapshot ID:** Not available in CAST MCP — [query attempted on structure only].
+
+---
