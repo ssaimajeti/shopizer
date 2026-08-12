@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    outputs:
+      java-version: ${{ steps.java.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Java 3.2.6
+        id: java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '3.2.6'
+
+  lint:
+    name: Lint
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '3.2.6'
+      - name: Lint with Maven SpotBugs
+        run: mvn --batch-mode com.github.spotbugs:spotbugs-maven-plugin:3.1.8:check
+
+  test:
+    name: Unit Tests
+    needs: [setup, lint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '3.2.6'
+      - name: Test with Maven
+        run: mvn --batch-mode clean test
+
+  build:
+    name: Build
+    needs: [setup, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '3.2.6'
+      - name: Build with Maven
+        run: mvn --batch-mode clean package
+
+  sast:
+    name: SAST Scan (optional)
+    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '3.2.6'
+      - name: Run SpotBugs scan
+        run: mvn --batch-mode com.github.spotbugs:spotbugs-maven-plugin:3.1.8:check
