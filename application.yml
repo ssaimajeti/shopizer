@@ -1,87 +1,85 @@
-# ==============================
-# application.yml (Spring Boot 3.2.6 / Java 17)
-# Generated for upgrade: Java 11 → Java 17, Spring Boot 2.5.12 → 3.2.6
-# ==============================
-
-server:
-  port: 8080 # Default port for embedded servlet container
-  servlet:
-    context-path: / # Default context path
+# application.yml
 
 spring:
-  profiles:
-    active: default
   application:
     name: shopizer
+  # Spring profiles may be activated by environment variable SPRING_PROFILES_ACTIVE
+  profiles:
+    active: default
   main:
-    allow-bean-definition-overriding: true
-    banner-mode: "console"
-    # New required setting for Spring Boot 3.x+
-    default-charset: UTF-8 # Ensure consistent charset with Java 17 (Spring Boot 3.x compatibility)
+    # Ensure fail-fast if misconfiguration in supporting Java 17 or above
+    allow-bean-definition-overriding: false
+    # Java 17 requires removing legacy bean/introspector logic; nothing to add here
+  jackson:
+    # Set to true for Java time module compatibility (default true in Spring Boot 3+)
+    # No need to set unless support for legacy behavior is required
+    # See release notes for Java 17 behavior
+    # date-format: yyyy-MM-dd'T'HH:mm:ss.SSSZ
+  # === Data Source configuration ===
   datasource:
-    url: jdbc:h2:file:/SALESMANAGER;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE # Default DB path, update if using another RDBMS
-    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:/SALESMANAGER.h2.db;DB_CLOSE_ON_EXIT=FALSE
     username: sa
     password:
+    driver-class-name: org.h2.Driver
     hikari:
       maximum-pool-size: 10
-      minimum-idle: 2
+  # === JPA Properties for Hibernate ===
   jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
-    show-sql: false
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
-  jackson:
-    # Added - Java 17 default type: use new timezone handling in Boot 3
-    time-zone: UTC # Set UTC to match new Java time recommendations for Boot 3/Java 17
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher # Ensures compatibility with Springfox/legacy paths; set to 'ant_path_matcher' if using old Springfox. Change as needed.
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics # Only expose safe endpoints by default
-  endpoint:
+        show_sql: false
+    open-in-view: false
+  # === Banner ===
+  banner:
+    mode: "console"
+  # === Health and management endpoints ===
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics
     health:
-      show-details: when_authorized # 'always' in dev or 'when_authorized' for prod safety
-  health:
-    db:
-      enabled: true
-    diskspace:
-      enabled: true
+      db:
+        enabled: true
+      diskspace:
+        enabled: true
+    endpoint:
+      health:
+        show-details: always
+    server:
+      port: 8081 # Expose actuator endpoints (customizable)
+  # === Server settings ===
+  server:
+    port: 8080
+    servlet:
+      context-path: /
+    error:
+      include-message: always # Show error message in JSON error responses for debug
+      include-binding-errors: always
 
 logging:
   level:
     root: INFO
-    org.springframework: INFO
-    com.shopizer: DEBUG # Increase log level for application code if needed
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
+    org.springframework.web: INFO
+    com.shopizer: DEBUG
 
-# Springdoc/OpenAPI migration in Spring Boot 3.x
-# The old Springfox Swagger is incompatible with Spring Boot 3+. If API docs are required, migrate to springdoc-openapi.
-# springfox:
-#   documentation:
-#     enabled: false  # Springfox is not compatible with Spring Boot 3.x / Java 17
+---
+# Java 17+ runtime compatibility announcement
+# Spring Boot 3+ requires Java 17 or newer, enforced by build/runtime pinning
 
-springdoc:
-  # Added for OpenAPI if migrated — remove if NOT using springdoc-openapi yet.
-  api-docs:
-    enabled: true # Enable OpenAPI docs for springdoc (replacement for Springfox/Swagger2)
-  swagger-ui:
-    enabled: true # Enable Swagger UI for OpenAPI docs
+shopizer:
+  environment: production # set or override via env var if needed
 
-# ==============================
-# Notes:
-# - Default-charset set for Java 17/text consistency.
-# - Springfox keys commented out as Springfox is incompatible with Spring Boot 3.x; springdoc keys are added for OpenAPI migration.
-# - Management and logging settings aligned with Spring Boot 3.2.6.
-# - Add/modify spring.datasource section if switching DB.
-# - Remove or migrate legacy/yaml keys if your codebase used old (now removed) Spring Boot 2.x settings.
-# - Test all externalized config in CI using the EXACT build/runtime versions (Java 17, Spring Boot 3.2.6) per upgrade goal.
-# ==============================
+---
+# Documentation for upgrade:
+# - No keys in this config file need to pin explicit Java version for runtime. 
+# - Java version compatibility is handled by the build (pom.xml) and container/deployment tooling.
+# - Spring Boot properties for deprecated behaviors (like spring.main.allow-circular-references)
+#   are removed in Boot 3+ and cannot be set or used; do not add them here.
+# - Any deprecated configuration incompatible with Java 17 or Spring Boot 3+ is omitted.
+
+# END OF FILE
