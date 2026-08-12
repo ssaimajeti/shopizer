@@ -1,19 +1,25 @@
-## Upgrade Java from 11 to 17 (LTS)
+# Shopizer-3.2.5: Upgrade Java from 11 to 17 (LTS)
 
-**Business Requirement:**  
-Upgrade the Shopizer-3.2.5 application from Java 11 to Java 17 (LTS).  
-This will ensure runtime support, security compliance, access to modern Java features, and improved maintainability.
+## Requirement
+Upgrade the Shopizer-3.2.5 application from Java 11 to Java 17 (LTS).
 
-**Source:**  
-Requirement provided by user; business-level context not sourced from CAST, no BCM was provided (compliance gap — see rules).
+- Goal: Ensure the application is buildable and runs successfully on Java 17.
+- Upgrade urgency: medium
 
-**Scope Constraints:**  
-- CAST BCM subsystem/component filters are not available: ALL queries in this analysis are app-wide (see compliance flags).
-- Shopizer-3.2.5 is confirmed as the target application (CAST MCP).
+> Source: Requirement provided out-of-band (not from CAST).
+> Target: CAST application "Shopizer-3.2.5".
 
-**Rationale:**  
-Java 17 introduces new features and long-term support, which is critical to keep Shopizer maintainable and supported.
+## Scope
+No specific BCM (Business Capability Model) subsystem or component was supplied. All queries were run at the full application scope. This is a standing compliance gap (see GR-08).
 
-**Assumptions & Non-CASTable Detail:**  
-- Proposed implementation steps (build tool detection, config edits, dependency adjustments) are ⚠️ proposal, not confirmed by CAST facts.
-- No CAST evidence was found for active CVE findings. However, several quality/security "platform migration" blockers and structural flaws are present and must be reviewed/tested after upgrade.
+## Out of Scope
+- Feature, design, or dependency upgrades beyond the Java runtime/build tool/environment.
+- Code refactoring for green, cloud, or security findings (summary provided).
+- Any code changes not required for Java 17 compatibility.
+
+## Boundaries
+This is a technical feature spec. Batch/boundary decomposition rules per GR-12/GR-13 are N/A.
+
+## Compliance Gaps
+- BCM scoping absent. All evidence is app-wide (see above and Research Appendix).
+
