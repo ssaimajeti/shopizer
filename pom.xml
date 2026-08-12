@@ -20,7 +20,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.12</version>
+		<version>3.2.6</version>
 	</parent>
 
 	<modules>
@@ -35,7 +35,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!--java version -->
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
@@ -73,7 +73,7 @@
 
 
 		<!-- api documentation -->
-		<swagger.version>2.9.2</swagger.version>
+		<swagger.version>3.0.0</swagger.version>
 
 		<!-- jacoco coverage -->
 		<coverage.lines>.30</coverage.lines>
@@ -367,6 +367,15 @@
 				<version>${javax.annotation}</version>
 			</dependency>
 
+			<!-- Spring Framework BOM (added for Spring 6.1.6 compatibility) -->
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-framework-bom</artifactId>
+				<version>6.1.6</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
 		</dependencies>
 
 	</dependencyManagement>
@@ -458,7 +467,6 @@
 			<artifactId>junit-vintage-engine</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 
 	</dependencies>
 
