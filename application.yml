@@ -1,0 +1,85 @@
+# application.yml
+
+spring:
+  application:
+    name: shopizer
+  # Spring profiles may be activated by environment variable SPRING_PROFILES_ACTIVE
+  profiles:
+    active: default
+  main:
+    # Ensure fail-fast if misconfiguration in supporting Java 17 or above
+    allow-bean-definition-overriding: false
+    # Java 17 requires removing legacy bean/introspector logic; nothing to add here
+  jackson:
+    # Set to true for Java time module compatibility (default true in Spring Boot 3+)
+    # No need to set unless support for legacy behavior is required
+    # See release notes for Java 17 behavior
+    # date-format: yyyy-MM-dd'T'HH:mm:ss.SSSZ
+  # === Data Source configuration ===
+  datasource:
+    url: jdbc:h2:file:/SALESMANAGER.h2.db;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    hikari:
+      maximum-pool-size: 10
+  # === JPA Properties for Hibernate ===
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false
+    open-in-view: false
+  # === Banner ===
+  banner:
+    mode: "console"
+  # === Health and management endpoints ===
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics
+    health:
+      db:
+        enabled: true
+      diskspace:
+        enabled: true
+    endpoint:
+      health:
+        show-details: always
+    server:
+      port: 8081 # Expose actuator endpoints (customizable)
+  # === Server settings ===
+  server:
+    port: 8080
+    servlet:
+      context-path: /
+    error:
+      include-message: always # Show error message in JSON error responses for debug
+      include-binding-errors: always
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    com.shopizer: DEBUG
+
+---
+# Java 17+ runtime compatibility announcement
+# Spring Boot 3+ requires Java 17 or newer, enforced by build/runtime pinning
+
+shopizer:
+  environment: production # set or override via env var if needed
+
+---
+# Documentation for upgrade:
+# - No keys in this config file need to pin explicit Java version for runtime. 
+# - Java version compatibility is handled by the build (pom.xml) and container/deployment tooling.
+# - Spring Boot properties for deprecated behaviors (like spring.main.allow-circular-references)
+#   are removed in Boot 3+ and cannot be set or used; do not add them here.
+# - Any deprecated configuration incompatible with Java 17 or Spring Boot 3+ is omitted.
+
+# END OF FILE

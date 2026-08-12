@@ -1,7 +1,6 @@
-
 pipeline{
     agent {
-        label 'MVN3'
+        label 'JAVA21'
     }
     stages{
         stage('clone'){
@@ -34,7 +33,7 @@ pipeline{
     }    
 
 pipeline {
-    agent {label 'OPENJDK-11-JDK'}
+    agent {label 'JAVA21'}
     triggers {
         pollSCM('0 17 * * *')
     }
