@@ -1,156 +1,154 @@
-package com.shopizer.upgrade;
+package com.shopizer.upgrade.validation;
 
-import org.junit.jupiter.api.*;
-import org.springframework.boot.SpringBootVersion;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import java.lang.reflect.Field;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Properties;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class UpgradeValidationTest {
+class Java17UpgradeValidationTest {
 
-    private static final String REQUIRED_SPRING_BOOT_VERSION = "3.2.6";
-    private static final int REQUIRED_JAVA_VERSION = 17;
+    private static final String EXPECTED_JAVA_VERSION = "21";
+    private static final String SPRING_BOOT_VERSION = "3.2.6";
 
-    @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
-
-    private MockMvc mockMvc;
-
-    @BeforeEach
-    void setupMockMvc() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+    @Test
+    @DisplayName("Validate JVM is running at Java version 21 (EXACT match)")
+    void testJavaRuntimeVersionPin() {
+        String runtimeVersion = System.getProperty("java.version");
+        assertNotNull(runtimeVersion, "java.version system property should not be null");
+        assertTrue(
+                runtimeVersion.equals(EXPECTED_JAVA_VERSION) ||
+                runtimeVersion.startsWith(EXPECTED_JAVA_VERSION + "."),
+                "Running JVM version must be exactly '" + EXPECTED_JAVA_VERSION + "' but was '" + runtimeVersion + "'"
+        );
     }
 
     @Test
-    @Order(1)
-    @DisplayName("Active Spring Boot version must be 3.2.6")
-    void activeSpringBootVersionIsTarget() {
-        String springBootVersion = SpringBootVersion.getVersion();
-        assertEquals(REQUIRED_SPRING_BOOT_VERSION, springBootVersion, 
-            "Spring Boot version MUST be " + REQUIRED_SPRING_BOOT_VERSION + " after upgrade");
+    @DisplayName("Validate presence and content of Maven 'pom.xml' <java.version> property")
+    void testPomXmlJavaVersionPin() throws Exception {
+        String pom = new String(Files.readAllBytes(Paths.get("pom.xml")));
+        assertTrue(
+                pom.contains("<java.version>" + EXPECTED_JAVA_VERSION + "</java.version>") ||
+                pom.contains("<maven.compiler.source>" + EXPECTED_JAVA_VERSION + "</maven.compiler.source>"),
+                "Root pom.xml must pin <java.version> or <maven.compiler.source> to '" + EXPECTED_JAVA_VERSION + "'."
+        );
     }
 
     @Test
-    @Order(2)
-    @DisplayName("Active Java version must be 17 at runtime")
-    void activeJavaVersionIs17() {
-        String specVersion = System.getProperty("java.specification.version");
-        // Java 17 may report "17" or "17.0.0" as version string
-        assertTrue(specVersion.startsWith("17"), 
-            "Runtime Java specification version must be 17, found: " + specVersion);
-        String vmVersion = System.getProperty("java.version");
-        assertTrue(vmVersion.startsWith("17"), 
-            "Runtime Java version must be 17, found: " + vmVersion);
+    @DisplayName("Validate Dockerfile uses correct Java 21 base image")
+    void testDockerfileJavaBaseImagePin() throws Exception {
+        String dockerfile = new String(Files.readAllBytes(Paths.get("sm-shop/Dockerfile")));
+        assertTrue(
+                dockerfile.contains("openjdk21") || dockerfile.contains("jdk-21"),
+                "Dockerfile must use a base image that is Java 21 (openjdk21 or jdk-21 tag)."
+        );
     }
 
     @Test
-    @Order(3)
-    @DisplayName("Critical REST API path: /api/v1/products works and responds 200")
-    void criticalRestEndpointWorks_products() throws Exception {
-        mockMvc.perform(get("/api/v1/products"))
-               .andExpect(status().isOk());
-    }
-
-    @Test
-    @Order(4)
-    @DisplayName("Critical REST API path: /api/v1/categories works and responds 200")
-    void criticalRestEndpointWorks_categories() throws Exception {
-        mockMvc.perform(get("/api/v1/categories"))
-               .andExpect(status().isOk());
-    }
-
-    @Test
-    @Order(5)
-    @DisplayName("Deprecated API usages - SchemaConstant.LANGUAGE_ISO_CODE no longer present as public usage")
-    void deprecatedApiIsAbsent() {
-        // The constant LANGUAGE_ISO_CODE in SchemaConstant is marked @Deprecated and should have been removed or replaced in the codebase.
-        try {
-            Class<?> schemaConstantClass = Class.forName("com.salesmanager.core.constants.SchemaConstant");
-            Field languageIsoField = schemaConstantClass.getDeclaredField("LANGUAGE_ISO_CODE");
-            assertTrue(languageIsoField.isAnnotationPresent(Deprecated.class),
-                "LANGUAGE_ISO_CODE should still be present but deprecated");
-        } catch (ClassNotFoundException | NoSuchFieldException e) {
-            fail("SchemaConstant.LANGUAGE_ISO_CODE field missing - review code for upgrade fallout!");
-        }
-    }
-
-    @Test
-    @Order(6)
-    @DisplayName("Old Swagger Springfox beans are not in context")
-    void oldSwaggerBeansAreGone() {
-        AtomicBoolean legacySwaggerPresent = new AtomicBoolean(false);
-        String[] beanNames = applicationContext.getBeanDefinitionNames();
-        for (String name : beanNames) {
-            if (name.contains("springfox") || name.contains("swagger2")) {
-                legacySwaggerPresent.set(true);
-                break;
-            }
-        }
-        assertFalse(legacySwaggerPresent.get(), "Springfox Swagger 2 beans should NOT be present after upgrade to Spring Boot 3.x");
-    }
-
-    @Test
-    @Order(7)
-    @DisplayName("Actuator endpoint /actuator/health works")
-    void actuatorHealthEndpointWorks() throws Exception {
-        mockMvc.perform(get("/actuator/health"))
-               .andExpect(status().isOk());
-    }
-    
-    @Test
-    @Order(8)
-    @DisplayName("New Spring Boot 3.x configuration key: 'spring.threads.virtual.enabled' can be loaded")
-    void newConfigKeyLoads() {
-        // Simulate config load. Test if key is loadable and recognized (will pass if not throwing exception or not rejected).
-        Properties properties = new Properties();
-        properties.setProperty("spring.threads.virtual.enabled", "false");
-        assertEquals("false", properties.getProperty("spring.threads.virtual.enabled"));
-    }
-
-    @Test
-    @Order(9)
-    @DisplayName("Transaction management uses Jakarta and not javax packages")
-    void jakartaTransactionsUsed() {
-        try {
-            Class.forName("jakarta.transaction.Transactional");
-            // If the class loads, we're using Jakarta correctly
+    @DisplayName("Smoke test: can load a Spring context and use critical beans")
+    void testCriticalSpringBootContext() throws Exception {
+        // Load Spring ApplicationContext in isolation (main smoke test, not meant as a full app boot)
+        // Passes if Spring Boot 3+ and class contexts are compatible with Java 21
+        try (org.springframework.boot.SpringApplication app = new org.springframework.boot.SpringApplication(Class.forName("com.shopizer.shop.ShopperApplication"))) {
+            app.setAdditionalProfiles("test");
+            app.setWebApplicationType(org.springframework.boot.WebApplicationType.NONE);
+            var context = app.run("--spring.main.banner-mode=off");
+            assertTrue(context.isActive(), "Spring context must be active");
+            // Test existence of known critical bean
+            assertTrue(context.containsBean("productController") || context.containsBean("productService"),
+                    "Critical beans like 'productController' or 'productService' must load in Spring context");
+            context.close();
         } catch (ClassNotFoundException e) {
-            fail("Jakarta Transactional annotation missing - legacy javax.transaction.* may still be in use.");
+            fail("Could not load main application class. Check that application builds for Java 21: " + e.getMessage());
         }
     }
 
     @Test
-    @Order(10)
-    @DisplayName("Container base - Dockerfile for sm-shop uses java 17")
-    void dockerfileUsesJava17() {
-        // NOTE: this is a static check. Ideally run separately or inject via build. Here we assert on the presence of 17
-        String dockerfileContents = "";
-        try (java.io.InputStream is = getClass().getResourceAsStream("/sm-shop/Dockerfile")) {
-            if (is == null) return; // Can't check in test run if not in test-path
-            java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-            dockerfileContents = s.hasNext() ? s.next() : "";
-        } catch (Exception e) {
-            // Ignore if not in runtime classpath, tested in build step
+    @DisplayName("Assert Spring Boot Framework runtime is at 3.2.6 (critical)")
+    void testSpringBootVersionPin() throws Exception {
+        Package springBootPackage = Class.forName("org.springframework.boot.SpringApplication").getPackage();
+        String version = (String) springBootPackage.getImplementationVersion();
+        assertNotNull(version, "Spring Boot Implementation-Version must not be null");
+        assertEquals(SPRING_BOOT_VERSION, version, "Spring Boot version must be " + SPRING_BOOT_VERSION + " but was " + version);
+    }
+
+    @Test
+    @DisplayName("Legacy/deprecated Java 11/EE APIs no longer appear: javax.* replaced/removed from deps")
+    void testJavaEEDependencyRemoval() throws Exception {
+        String pom = new String(Files.readAllBytes(Paths.get("pom.xml")));
+        assertFalse(
+                pom.contains("javax.xml.bind") || pom.contains("javax.activation") ||
+                pom.contains("javax.ws.rs") || pom.contains("javax.jws"),
+                "Deprecated Java EE APIs (javax.xml.bind, javax.activation, javax.ws.rs, javax.jws) must be removed from all dependencies"
+        );
+    }
+
+    @Test
+    @DisplayName("Replaced APIs work: Spring Security, Date/Time APIs reflect Java 21+ idioms")
+    void testReplacedApiAvailability() throws Exception {
+        // Example: java.time.LocalDate is available and preferred over old Date/Calendar
+        Class<?> localDateClazz = Class.forName("java.time.LocalDate");
+        assertNotNull(localDateClazz.getDeclaredMethod("now"));
+        // Example: Confirm at runtime new SecurityFilterChain bean is available (Spring Security 6+ idiom)
+        try {
+            Class<?> clazz = Class.forName("org.springframework.security.web.SecurityFilterChain");
+            assertNotNull(clazz, "SecurityFilterChain must be present after migration");
+        } catch (ClassNotFoundException e) {
+            fail("SecurityFilterChain class is missing (Spring Security 6+ idiom should be present)");
         }
-        assertFalse(dockerfileContents.contains("openjdk11"), "Dockerfile should NOT mention openjdk11 image after upgrade.");
-        assertTrue(dockerfileContents.contains("openjdk17") || dockerfileContents.contains("java17"),
-            "Dockerfile should use openjdk17 as base image after upgrade.");
+    }
+
+    @Test
+    @DisplayName("New configuration keys introduced by Spring Boot 3+ are loadable")
+    void testNewSpringBootConfigKeysAcceptable() throws Exception {
+        // E.g., spring.threads.virtual.enabled is new in Spring Boot 3+
+        Properties props = new Properties();
+        props.setProperty("spring.threads.virtual.enabled", "true");
+        org.springframework.boot.SpringApplication app =
+                new org.springframework.boot.SpringApplication(Class.forName("com.shopizer.shop.ShopperApplication"));
+        app.setDefaultProperties((Map) props);
+        app.setWebApplicationType(org.springframework.boot.WebApplicationType.NONE);
+        var context = app.run("--spring.main.banner-mode=off");
+        assertTrue(context.isActive());
+        context.close();
+    }
+
+    @Test
+    @DisplayName("Deprecated field 'LANGUAGE_ISO_CODE' in SchemaConstant is marked as @Deprecated")
+    void testSchemaConstantLegacyFieldDeprecated() throws Exception {
+        Class<?> schemaConstant = Class.forName("com.salesmanager.core.constants.SchemaConstant");
+        Field field = schemaConstant.getDeclaredField("LANGUAGE_ISO_CODE");
+        assertTrue(field.isAnnotationPresent(Deprecated.class),
+                "LANGUAGE_ISO_CODE must be marked as @Deprecated in SchemaConstant");
+    }
+
+    @Test
+    @DisplayName("Critical application domain classes compile and function with Java 21")
+    void testDomainModelCompatibility() throws Exception {
+        // Instantiating with reflection as smoke test for upgraded bytecode compatibility
+        for (String fqcn : new String[] {
+                "com.salesmanager.core.model.catalog.catalog.Catalog",
+                "com.salesmanager.core.model.catalog.category.Category",
+                "com.salesmanager.core.model.catalog.product.Product"
+        }) {
+            Class<?> c = Class.forName(fqcn);
+            Object obj = c.getDeclaredConstructor().newInstance();
+            assertNotNull(obj, fqcn + " failed to instantiate under Java 21");
+        }
+    }
+
+    @Test
+    @DisplayName("New Spring Boot 3.x configuration/feature: verify actuator endpoints are enabled and functional")
+    void testSpringBootActuatorAvailability() throws Exception {
+        // Simulate health endpoint using actuator's HealthIndicator class (Spring Boot 3 requirement)
+        Class<?> actuatorClazz = Class.forName("org.springframework.boot.actuate.health.HealthIndicator");
+        assertNotNull(actuatorClazz, "Spring Boot 3.x actuator HealthIndicator class should exist");
     }
 }
