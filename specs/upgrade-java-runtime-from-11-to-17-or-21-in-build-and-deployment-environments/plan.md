@@ -1,30 +1,13 @@
-# Implementation Plan: Java Runtime Upgrade to 17 (or 21) for Shopizer-3.2.5
+## Implementation Plan (⚠️ proposal — not directly confirmed by CAST)
 
-1. **Baseline and Audit:**
-   - ⚠️ Inventory all locations where the Java runtime version is declared (build scripts, Dockerfiles, CI/CD configuration, application server configs).  
-   - ⚠️ Since CAST MCP does not expose direct build/deployment scripts or package verifications, this task must be performed via source/infra repo examination.
+1. **Determine Java Version Targets:** Decide, with reference to organizational standards, whether Java 17 or 21 will be used across environments.
+2. **Update Java Runtime/JDK Version:**
+   - Update all build, test, and deploy infrastructure to use the selected Java version (17 or 21).
+   - Update build tool configuration files as necessary to require/enforce Java 17/21. (⚠️ No Maven `pom.xml` or Gradle build files were surfaceable in CAST; see research.md.)
+3. **Update Supporting Properties and Wrapper Files:**
+   - Update any Java-related properties or wrapper files (e.g., `maven-wrapper.properties`) to be consistent with the supported Java version.
+4. **Test Full Build:** Execute a clean build and test cycle using the updated runtime, resolving any compilation or dependency incompatibilities that arise.
+5. **Test Deployment (Staging):** Deploy to a non-prod environment using the new runtime to validate deployment compatibility.
+6. **Rollout to Production:** Deploy changes to production, monitor for runtime errors or regressions.
 
-2. **Compatibility Review:**
-   - ✅ All application logic is Java-based (see research.md). 
-   - ⚠️ Review all known integration points (Spring MVC REST controllers, JPA, Hibernate, S3/Cloud SDKs) for compatibility with Java 17+.
-
-3. **Perform Upgrade:**
-   - ⚠️ Update Java runtime version in all build system and deployment targets to Java 17 or 21.
-   - ⚠️ Update underlying image/runner as required by the new Java runtime.
-   - ⚠️ Update any toolchains/compilers/plugins if necessary for Java 17/21 support (e.g., maven-compiler-plugin).
-
-4. **Application testing:**
-   - ⚠️ Confirm all application online entrypoints (exposed via Spring MVC — see transaction list in research.md) build, deploy, and successfully execute under Java 17/21.   
-   - ⚠️ Run application-level regression and smoke tests; verify no change in interface contracts, data persistence, or error handling.
-
-5. **Risk & Rollback:**
-   - ⚠️ Plan for rollback or selective Java version pinning if issues detected during test/prod rollout.
-
-6. **Documentation & Release:**
-   - ⚠️ Update release notes, runbooks, and infrastructure-as-code documentation to record the Java runtime upgrade and any relevant migration issues, even if not detected in CAST findings.
-
-**Legend**: 
-- ✅ CAST-confirmed fact
-- ⚠️ Proposal/action requiring out-of-band repo/infra/manual review
-
-**All plan items referencing explicit CAST findings are cross-referenced in research.md's Appendix.**
+All tasks must be coordinated with pipeline/deployment maintainers, as no actual pipeline files (e.g., Dockerfiles, CI/CD scripts) surfaced in discovery.
