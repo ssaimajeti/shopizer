@@ -1,14 +1,13 @@
-# Spec: Upgrade Java Runtime from 11 to 17 (or 21) in build and deployment environments
+### Business-level Requirements Spec
 
-**Source:** This spec is derived from a non-CAST requirement document and covers the Shopizer-3.2.5 CAST Imaging application. All technical claims or references in this spec are tagged with their CAST traceability and confidence, per compliance guidelines.
+This specification describes changes required to upgrade the Java runtime version in both the build and deployment environments for the Shopizer-3.2.5 application. The requested upgrade is from Java 11 to Java 17 (or 21). This requirement is sourced from a non-CAST document (requirement.doc/Jira), not from CAST MCP, and no business process subsystem (BCM) was provided. Per governance, this is a standing compliance gap (see GR-08).
 
-## Business Requirements
-Upgrade the Java runtime/JDK used for building, testing, and deploying the Shopizer-3.2.5 application from Java 11 to Java 17 or Java 21. All environments, including local development, CI, and production deployments, must build and run using only Java 17 or 21, with supporting build tools and configurations amended as needed.
+The requirement touches both the build process and deployment/runtime environments, ensuring that the application is compiled and executed on the targeted Java version. All changes must be compatible with Shopizer-3.2.5 source and dependency structure.
 
-## Compliance Notes
-* ⚠️ No BCM (business capability model) scope was provided. Per GR-08, this spec proceeds app-wide and is flagged as a standing compliance gap.
-* No specific runtime, build tool, or deployment pipeline references could be sourced from CAST technical discovery; see Technical Appendix.
+**Note:** No explicit evidence for the current Java runtime, target runtime settings, or CI/CD pipeline files was found in the CAST application snapshot. Build definitions (e.g., Maven properties, Gradle, Dockerfile, GitHub Actions, CI/CD scripts) setting the Java version are either not captured in the CAST graph, not present in the codebase, or not modeled.
 
-## Out-of-Scope
-* Decisions regarding selection between Java 17 or 21 are out-of-scope—this must be confirmed separately with the owner. No CAST evidence showing which is viable.
-* Actual deployment or CI/CD pipeline scripts or configuration files are not discoverable in CAST for this application; see research.md for tool result.
+**Scoping Clarification:** No BCM scope was provided in the requirement or found in CAST. All findings are based on a full application scan.
+
+GR-12/13 boundaries are *not applicable* as this is a runtime/platform upgrade.
+
+---
