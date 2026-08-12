@@ -1,16 +1,17 @@
-# Java Version Upgrade (Java 11 → 17/21 LTS): Shopizer-3.2.5
+# Upgrade Java from 11 to 17 or 21 (LTS)
 
-**Origin:** Requirement from upstream document, not CAST-created.
+**Source requirement:** Provided by user, not CAST MCP. This document specifies business language only—see the Technical Appendix for CAST-derived evidence.
 
-## Business Requirement
+**Objective:**  
+Upgrade the Shopizer-3.2.5 application to run under Java 17 or 21 LTS.
 
-Upgrade the Shopizer-3.2.5 application from Java 11 to either Java 17 or Java 21 (both are LTS versions).
+**Scope:**  
+Shopizer-3.2.5 (app-wide; no BCM-level scoping provided—see Compliance Gaps below).
 
-- **Upgrade urgency:** medium.
-- **Target platform:** Shopizer-3.2.5 (CAST Imaging application).
-- **Runtime, build tool:** No official runtime nor build tool detected by CAST Imaging in this analysis; see Appendix for verification detail.
-- **BCM scope:** None specified; this is an all-application query — flagging as a standing compliance gap per GR-08.
+**Compliance Gaps / SME Action Required:**  
+- No BCM (Business Capability Model) supplied for scoping. App-wide queries have been used (GR-08, compliance gap).  
+- GR-12/13 not applicable (no decomposition or boundary split required for this upgrade; feature-level requirement).
 
-**Origin of requirements:** Non-CAST source (provided by user). All functional and non-functional requirements above are from outside CAST and are not directly verifiable in CAST Imaging.
-
-**GR-12/13 note:** Not applicable—this is a feature spec, not a decomposition.
+**Constraints / Notes:**  
+- All facts about current language, runtime, libraries, build tools, and technical findings are derived from CAST MCP queries (see Appendix).  
+- This is a technology/platform upgrade. Functional/feature behavior changes are explicitly out of scope unless required for compatibility with Java 17/21.
