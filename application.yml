@@ -1,0 +1,65 @@
+# application.yml
+
+server:
+  port: 8080
+  # Spring Boot 3.x still uses `server.port` for server port configuration
+
+spring:
+  datasource:
+    url: jdbc:h2:file:/SALESMANAGER
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    # Spring Boot 3.x requires explicit `driver-class-name` for custom DataSources
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    # Hibernate properties now require nesting under `jpa.hibernate` in Spring Boot 3.x
+    open-in-view: false  # Good default for REST APIs and recommended by Boot, also no longer enabled by default in Spring Boot 3+
+
+  main:
+    allow-bean-definition-overriding: false
+    # Still supported, but should be explicit to avoid Spring Boot 3 breaking change warnings
+
+  mvc:
+    throw-exception-if-no-handler-found: true  # Ensures 404s are handled as exceptions, required in Spring Boot 3.x for custom error mapping
+
+  jackson:
+    default-property-inclusion: non_null  # Ensure nulls are not serialized by default
+
+  # The following legacy keys were deprecated and removed in Spring Boot 3.x,
+  # kept commented here for reference:
+  # spring.mvc.async.request-timeout: 30000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info  # Minimal actuator endpoints exposed by default in Boot 3.x for security
+  endpoint:
+    health:
+      show-details: "when_authorized"  # Changed: allowed values now "never", "when_authorized", "always" (Spring Boot 3.x default is "never")
+
+logging:
+  level:
+    org.springframework: INFO
+    com.shopizer: INFO
+  file:
+    path: ./logs
+
+# New for Spring Boot 3.x: Spring Security defaults (more secure defaults as legacy ones are removed)
+spring:
+  security:
+    require-ssl: false # Enforce SSL in production, keep 'false' for default/local unless otherwise required
+
+# New for Spring Boot 3.x: graceful shutdown support
+server:
+  shutdown: graceful  # Enables graceful shutdown for modern container orchestrators
+
+# Updated to work as a 12-factor app, especially in containers/cloud (read from environment)
+# Config values below can be overridden via environment variables as needed
+
+# Commented out legacy/deprecated config keys that may have existed in earlier versions
+# spring.main.allow-circular-references: false  # Deprecated/removed in Spring Boot 3.x
+# management.endpoints.web.base-path: /actuator  # Now always available at /actuator
