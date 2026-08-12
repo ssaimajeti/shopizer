@@ -35,7 +35,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!--java version -->
-		<java.version>17</java.version>
+		<java.version>21</java.version>
 
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
@@ -70,6 +70,7 @@
 		<drools.version>7.32.0.Final</drools.version>
 		<google-client-maps-services-version>0.1.6</google-client-maps-services-version>
 		<jwt.version>0.8.0</jwt.version>
+
 
 		<!-- api documentation -->
 		<swagger.version>2.9.2</swagger.version>
