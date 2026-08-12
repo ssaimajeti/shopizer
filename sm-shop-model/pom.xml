@@ -61,11 +61,11 @@
       <version>6.1.6</version>
     </dependency>
     
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-webmvc</artifactId>
-		<version>6.1.6</version>
-	</dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>6.1.6</version>
+    </dependency>
 
     <dependency>
       <groupId>javax.annotation</groupId>
@@ -92,7 +92,7 @@
         <extensions>true</extensions>
         <configuration>
           <serverId>ossrh</serverId>
-          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <nexusUrl>https://oss.sonatype.org/nexus</nexusUrl>
           <autoReleaseAfterClose>true</autoReleaseAfterClose>
         </configuration>
       </plugin>
