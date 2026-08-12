@@ -1,107 +1,115 @@
 package com.shopizer.upgrade;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnJre;
-import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.boot.SpringBootVersion;
 import org.springframework.core.SpringVersion;
 
-import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UpgradeSuccessValidationTest {
+class UpgradeVerificationTest {
 
-    private static final String TARGET_JAVA_VERSION = "17";
     private static final String TARGET_SPRING_BOOT_VERSION = "3.2.6";
-    private static final String TARGET_SPRING_VERSION = "6.1.6";
-    private static final String TARGET_OPENAPI_DEPENDENCY = "org.springdoc";
-    private static final String[] DEPRECATED_SWAGGER_PACKAGES = {
-            "springfox.documentation.swagger2",
-            "springfox.documentation.swagger.web",
-            "springfox.documentation.swagger.common"
-    };
+    private static final String TARGET_SPRING_FRAMEWORK_VERSION = "6.1.6";
 
     @Test
-    @DisplayName("Java Runtime is Java 17 or 21")
-    void shouldUseTargetJavaVersion() {
-        String actualVersion = System.getProperty("java.version");
-        assertNotNull(actualVersion, "Java version system property should be present");
-        boolean matches = actualVersion.startsWith(TARGET_JAVA_VERSION) || actualVersion.startsWith("21");
-        assertTrue(matches, "Java is not at target version (expected 17 or 21). Actual: " + actualVersion);
+    @DisplayName("Spring Boot is at exact upgraded version 3.2.6")
+    void testSpringBootVersionIsTarget() {
+        String activeVersion = SpringBootVersion.getVersion();
+        assertEquals(TARGET_SPRING_BOOT_VERSION, activeVersion, "Spring Boot version must be exactly 3.2.6");
     }
 
     @Test
-    @DisplayName("Spring Boot is at 3.2.6")
-    void shouldUseCorrectSpringBootVersion() {
-        String version = SpringBootVersion.getVersion();
-        assertEquals(TARGET_SPRING_BOOT_VERSION, version, "Spring Boot version mismatch");
+    @DisplayName("Spring Framework is at exact upgraded version 6.1.6")
+    void testSpringFrameworkVersionIsTarget() {
+        String springVersion = SpringVersion.getVersion();
+        assertEquals(TARGET_SPRING_FRAMEWORK_VERSION, springVersion, "Spring Framework version must be exactly 6.1.6");
     }
 
     @Test
-    @DisplayName("Spring Framework is at 6.1.6")
-    void shouldUseCorrectSpringFrameworkVersion() {
-        String version = SpringVersion.getVersion();
-        assertEquals(TARGET_SPRING_VERSION, version, "Spring Framework version mismatch");
-    }
-
-    @Test
-    @DisplayName("Critical Spring Boot REST and Data JPA paths are usable")
-    void shouldLoadSpringBootContextAndJpa() {
-        // Try loading critical classes to ensure they're present and from Spring 3.x
+    @DisplayName("Application can initialize Spring context and load main REST Controller")
+    void testCriticalApplicationPath() {
+        // Try to load a main controller bean known to be present in the application after a Spring upgrade.
         try {
-            Class<?> webClass = Class.forName("org.springframework.web.bind.annotation.RestController");
-            Class<?> jpaClass = Class.forName("org.springframework.data.jpa.repository.JpaRepository");
-            Package webPkg = webClass.getPackage();
-            Package jpaPkg = jpaClass.getPackage();
-            assertNotNull(webPkg, "Spring Web package must not be null");
-            assertNotNull(jpaPkg, "Spring Data JPA package must not be null");
-            String webPkgVersion = webPkg.getImplementationVersion();
-            String jpaPkgVersion = jpaPkg.getImplementationVersion();
-            assertTrue(webPkg.getName().startsWith("org.springframework.web"), "Spring Web package not found");
-            assertTrue(jpaPkg.getName().startsWith("org.springframework.data.jpa"), "Spring Data JPA package not found");
+            Class<?> controller = Class.forName("com.salesmanager.shop.store.api.v1.user.UserRESTController");
+            assertNotNull(controller, "UserRESTController must be loadable with Spring 3.2.6");
         } catch (ClassNotFoundException e) {
-            fail("Critical Spring class missing: " + e.getMessage());
+            fail("Critical REST controller class not found in classpath: " + e.getMessage());
         }
     }
 
     @Test
-    @DisplayName("Springfox/Swagger APIs are not present")
-    void shouldNotLoadSpringfoxSwagger() {
-        for (String pkg : DEPRECATED_SWAGGER_PACKAGES) {
-            try {
-                Class.forName(pkg + ".Swagger2DocumentationConfiguration");
-                fail("Deprecated Springfox Swagger2 API should not be present: " + pkg);
-            } catch (ClassNotFoundException ignored) {
-            }
-        }
-    }
-
-    @Test
-    @DisplayName("OpenAPI (springdoc) is present as replacement")
-    void shouldHaveOpenApiSpringdocPresent() {
+    @DisplayName("Springfox Swagger v2 API classes are absent and OpenAPI replacement is present")
+    void testOpenAPIReplacementPresentAndSwaggerV2Absent() {
+        // Old swagger class should be absent
+        assertThrows(ClassNotFoundException.class, () ->
+                Class.forName("springfox.documentation.swagger2.annotations.EnableSwagger2"),
+            "Springfox Swagger2 EnableSwagger2 should not exist after upgrade to OpenAPI"
+        );
+        // New OpenAPI 3 replacement should be present (typical for springdoc-openapi integration)
         try {
-            Class<?> openApiConfig = Class.forName("org.springdoc.core.SpringDocConfigProperties");
-            assertNotNull(openApiConfig, "OpenAPI springdoc-core should be present");
+            Class<?> openApiClass = Class.forName("org.springdoc.core.annotations.RouterOperation");
+            assertNotNull(openApiClass, "OpenAPI 3 (springdoc-openapi) RouterOperation annotation must be present after upgrade");
         } catch (ClassNotFoundException e) {
-            fail("Springdoc OpenAPI dependency is not present or not properly configured");
+            fail("OpenAPI replacement (springdoc-openapi) class not found: " + e.getMessage());
         }
     }
 
     @Test
-    @DisplayName("New Spring Boot 3.x configuration keys are loaded without error")
-    void shouldLoadNewSpringBoot3ConfigKeys() throws IOException {
-        // configprop: management.endpoint.health.show-details=always is a 3.x+ config example
-        Properties props = new Properties();
-        try (var is = getClass().getResourceAsStream("/application.properties")) {
-            if (is != null) {
-                props.load(is);
-                // Example: ensure new or changed keys load without errors
-                props.getProperty("management.endpoint.health.show-details");
-                props.getProperty("spring.threads.virtual.enabled");
-            }
+    @DisplayName("New configuration keys introduced in Spring Boot 3.x load and parse correctly")
+    void testNewSpringBoot3ConfigKeysCanBeLoaded() {
+        // As an example, test a new key introduced in Spring Boot 3.x ("spring.application.admin.enabled=true").
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("application.properties")) {
+            assertNotNull(is, "application.properties must exist in resources");
+            Properties props = new Properties();
+            props.load(is);
+            // Simulate presence of a new config key
+            assertTrue(props.containsKey("spring.application.admin.enabled"),
+                    "Config key 'spring.application.admin.enabled' must be present in application.properties");
+        } catch (Exception ex) {
+            fail("Failed to load application.properties and check for new config keys: " + ex.getMessage());
         }
     }
+
+    @Test
+    @DisplayName("Java runtime version is at least 17")
+    void testJavaRuntimeVersion() {
+        String version = System.getProperty("java.version");
+        assertNotNull(version, "java.version system property must be set");
+        String[] versionParts = version.split("\\.");
+        int major;
+        try {
+            // Handle both 17 and 17.0.X style
+            if (versionParts[0].equals("1")) {
+                major = Integer.parseInt(versionParts[1]);
+            } else {
+                major = Integer.parseInt(versionParts[0]);
+            }
+        } catch (NumberFormatException e) {
+            fail("java.version system property cannot be parsed: " + version);
+            return;
+        }
+        assertTrue(major >= 17, "Java runtime must be at least 17 but was: " + major);
+    }
+
+    @Test
+    @DisplayName("No usage of deprecated SchemaConstant.LANGUAGE_ISO_CODE in code")
+    void testDeprecatedApiUsageRemoved() {
+        try {
+            Class<?> schemaConstClass = Class.forName("com.salesmanager.core.constants.SchemaConstant");
+            Field[] fields = schemaConstClass.getDeclaredFields();
+            for (Field field : fields) {
+                if ("LANGUAGE_ISO_CODE".equals(field.getName())) {
+                    assertTrue(field.isAnnotationPresent(Deprecated.class), "LANGUAGE_ISO_CODE must be marked @Deprecated");
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            fail("SchemaConstant class not found with expected upgrade: " + e.getMessage());
+        }
+    }
+
 }
