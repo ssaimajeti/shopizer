@@ -1,9 +1,25 @@
-# Quality and Implementation Standards
+# Quality Constitution for Java Platform Upgrades
 
-**[C1]** Zero-hallucination, traceable fact basis: All technical claims to be rooted in direct CAST results or flagged as external assumptions/proposals per GR-01/-02.
-**[C2]** All application-specific config/code changes limited to the Maven module poms enumerated in this session, as surfaced by CAST (see Appendix).
-**[C3]** All inferences about Java feature usage or compatibility must be flagged as ⚠️; only direct code presence or absence is checked by CAST.
-**[C4]** Retain backward compatibility for existing application features unless explicitly broken by Java version differences.
-**[C5]** Regression/integration/system test coverage must be retained or improved across all Shopizer-3.2.5 submodules post-upgrade.
-**[C6]** External SME/QA review required for all assumptions where CAST could not confirm or deny version dependency risk.
-**[C7]** Any found blockers or fragile dependencies must be documented for later architectural remediation.
+1. **Backward Compatibility:**  
+   - No functionality regression is acceptable unless required by upstream (JVM, framework) breaking change.
+
+2. **Quality Gate:**  
+   - All known CAST MCP structural and ISO 5055 security/maintainability issues must be tracked, with "critical" and "blocking" issues (per rule descriptions) remediated pre-release.
+
+3. **Code Conventions:**  
+   - Code changes must follow Java language and project formatting standards; no new warnings or static analyzer errors permitted from upgrade changes.
+
+4. **Testing:**  
+   - All existing tests (unit, integration, regression) must pass under Java 17/21; test coverage should expand for new/changed areas where possible.
+
+5. **Documentation & Traceability:**  
+   - Document all changes to source, config files, and build pipeline (including rationale for updates/deprecations).
+
+6. **App-wide Scope Acknowledgment:**  
+   - In absence of BCM breakdown, all remediation/testing must treat Shopizer-3.2.5 as a single deployable unit—no subcomponent splitting.
+
+7. **Compliance Logging:**  
+   - Log and explain all missing scoping, config, or technical metadata with reference to CAST MCP queries (see Research Appendix).
+
+8. **No Hallucination:**  
+   - Only CAST MCP findings, or directly observed repo/CI build configs, are valid evidence of the technology stack and compatibility posture.
