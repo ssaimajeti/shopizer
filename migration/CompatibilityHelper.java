@@ -1,115 +1,105 @@
 package com.shopizer.migration;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
-public class MigrationHelper {
+// Compatibility Shim for Java 17/21, Spring Boot 3.2.x, Spring Framework 6.x, Swagger to springdoc-openapi 2.x migration.
+public class MigrationCompatHelper {
 
     /**
-     * Deprecated API Replacement Section
-     *
-     * Provides compatibility wrappers or direct aliases for
-     * deprecated APIs replaced in newer versions during the upgrade.
+     * Shim for javax -> jakarta package rename.
+     * Helper: Call this in legacy imports for backward compatibility.
+     * Example: instead of importing javax.servlet.*, import com.shopizer.migration.MigrationCompatHelper.servlet.*
      */
-    
-    // --- Example: javax -> jakarta namespace migration ---
-    // Only provide method signatures used by your application.
-    // TODO: Replace all imports of javax.* with jakarta.* manually.
-    // This shim provides runtime compatibility for legacy code referencing javax.servlet.
-    
-    // Compatibility alias for javax.servlet.http.HttpServletRequest
+    public static class servlet extends jakarta.servlet.GenericServlet {
+        // Empty - acts as namespace import shim
+        // TODO: Manually refactor all javax.* imports to jakarta.*.
+    }
+
+    /**
+     * Deprecated API compatibility: Old Spring Boot ApplicationRunner support
+     * Wraps original interface for compatibility.
+     * TODO: Migrate usage of org.springframework.boot.ApplicationRunner to org.springframework.boot.ApplicationRunner in Jakarta namespaced Spring Boot.
+     */
+    @FunctionalInterface
+    public interface LegacyApplicationRunner {
+        void run(org.springframework.boot.ApplicationArguments args) throws Exception;
+    }
+
+    /**
+     * Swagger/Springfox replaced by springdoc-openapi.
+     * Provides minimal API shim for Docket, ApiInfo, and related classes.
+     * TODO: Replace usages with springdoc-openapi 2.x native configuration.
+     */
     @Deprecated
-    public static class HttpServletRequestCompat extends jakarta.servlet.http.HttpServletRequestWrapper {
-        public HttpServletRequestCompat(jakarta.servlet.http.HttpServletRequest request) {
-            super(request);
+    public static class Docket {
+        public Docket(Class<?> clazz) {
+            // No-op shim for legacy Docket instantiations
+            // TODO: Refactor and replace with OpenAPI bean in springdoc-openapi
         }
     }
 
-    // Compatibility alias for javax.servlet.http.HttpServletResponse
     @Deprecated
-    public static class HttpServletResponseCompat extends jakarta.servlet.http.HttpServletResponseWrapper {
-        public HttpServletResponseCompat(jakarta.servlet.http.HttpServletResponse response) {
-            super(response);
+    public static class ApiInfo {
+        public ApiInfo(String title, String description, String version, String termsOfServiceUrl,
+                       Object contact, String license, String licenseUrl, java.util.List<Object> vendorExtensions) {
+            // No-op shim
+            // TODO: Migrate to springdoc-openapi OpenAPIInfo model.
         }
     }
 
-    /**
-     * Renamed Package/Class Shim Section
-     *
-     * NOTE: All javax.* imports have been moved to jakarta.* in Spring 6+.
-     * All Spring Boot 3 code must use jakarta.* equivalents.
-     * TODO: Use find/replace to update import statements:
-     *   find all 'import javax.' → 'import jakarta.'
-     *   (Verify any edge-cases, especially for legacy libraries.)
-     */
-     
-    // --- Example: Springfox -> springdoc-openapi migration ---
-    // TODO: Migrate all usages of springfox.* classes to equivalent springdoc-openapi classes manually.
-    // There is no direct class-level shim; update controller annotations and configuration beans as required.
+    // Legacy config keys mapped to new keys for migration.
+    private static final Map<String, String> CONFIG_KEY_MAPPINGS = new HashMap<>() {{
+        // Example: Legacy to Jakarta EE property name transition
+        put("server.servlet.context-path", "server.servlet.context-path");
+        // TODO: Add additional property mappings as needed.
+    }};
 
     /**
-     * Config Format Migration Section
-     *
-     * Includes utilities to migrate configuration files
-     * (e.g., application.properties → application.yaml or new property keys).
+     * Config format migration from Spring Boot 2.x to 3.x (e.g. application.properties/yml).
+     * Migrates relevant config key names.
+     * @param legacyConfigContent The content of the original configuration file.
+     * @return The migrated configuration content.
      */
-
-    public static Properties migrateOldConfigToNew(InputStream oldConfigStream) throws IOException {
-        Properties oldProps = new Properties();
-        oldProps.load(oldConfigStream);
-        Properties newProps = new Properties();
-
-        for (String key : oldProps.stringPropertyNames()) {
-            String newKey = mapPropertyKey(key);
-            String newValue = oldProps.getProperty(key);
-            newProps.setProperty(newKey, migrateConfigValue(newKey, newValue));
+    public static String migrateSpringBootConfig(String legacyConfigContent) {
+        String migrated = legacyConfigContent;
+        for (Map.Entry<String, String> entry : CONFIG_KEY_MAPPINGS.entrySet()) {
+            migrated = migrated.replace(entry.getKey(), entry.getValue());
         }
-        return newProps;
-    }
-
-    private static String mapPropertyKey(String key) {
-        // TODO: Add mapping for all changed Spring Boot config keys between 2.5 and 3.2.6.
-        // Example: spring.jackson.serialization.write-dates-as-timestamps → spring.jackson.serialization.write-dates-as-timestamps (unchanged)
-        // Add real mappings here as needed.
-        return key;
-    }
-
-    private static String migrateConfigValue(String key, String value) {
-        // TODO: Implement value migration logic for keys whose formats or allowed values have changed
-        return value;
+        // TODO: Review manually for keys like spring.jackson.* and any removed/renamed properties per Spring Boot 3.x migration guide.
+        return migrated;
     }
 
     /**
-     * Dependency Version Update Notice
-     *
-     * NOTE: Guava, Commons Collections, Jackson-databind upgrades must be made in pom.xml.
-     * TODO: Manually update <dependency> versions to latest secured releases.
+     * Example: Utility function to apply config migration to a property file.
+     * Reads legacy config, applies migration, and writes new config.
+     */
+    public static void migrateConfigFile(File inputFile, File outputFile) throws IOException {
+        String content = new String(Files.readAllBytes(inputFile.toPath()));
+        String migrated = migrateSpringBootConfig(content);
+        Files.write(outputFile.toPath(), migrated.getBytes());
+        // TODO: Validate manual entries for environment-specific or deprecated settings.
+    }
+
+    /**
+     * Guava/Commons Collections dependency upgrades:
+     * TODO: Review usages of removed/deprecated classes (e.g. Guava's FutureCallback or removed preconditions)
+     * and update to supported APIs.
      */
 
     /**
-     * Swagger/Springfox Migration Notice
-     *
-     * NOTE: All Swagger/Springfox (springfox.swagger2, springfox.documentation.swagger2, etc.)
-     * code and configuration must be replaced with springdoc-openapi 2.x annotations and beans.
-     * TODO: Replace @EnableSwagger2, Docket, and related beans with springdoc-openapi equivalents.
+     * Jackson-databind upgrades:
+     * TODO: Inspect for @JsonTypeInfo, @JsonDeserialize or custom modules;
+     * confirm annotations and modules are compatible with latest Jackson.
      */
 
     /**
-     * Spring Security and Web Migration Notice
-     *
-     * NOTE: WebSecurityConfigurerAdapter is REMOVED in Spring Security 6.
-     * TODO: Refactor security configuration to component-based SecurityFilterChain beans.
+     * General migration notes:
+     * - All javax.* package references MUST be changed to jakarta.* (except for 3rd-party or legacy code not under migration scope).
+     * - All references to Springfox/Swagger 2.x must be refactored to use springdoc-openapi 2.x.
+     * - Manually audit for removed/renamed classes and properties in all third-party dependencies.
      */
-
-    /**
-     * General Upgrade TODOs
-     *
-     * - Refactor javax.* imports to jakarta.*
-     * - Replace deprecated APIs with new equivalents in code, especially in controllers and configuration
-     * - Update configuration files for syntax/format changes per Spring Boot upgrade notes
-     * - Migrate any remaining legacy Swagger/Springfox definitions to springdoc-openapi
-     * - Update all dependency versions in Maven pom.xml
-     */
-
 }
