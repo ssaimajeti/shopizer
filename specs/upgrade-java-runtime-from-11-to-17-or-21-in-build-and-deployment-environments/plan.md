@@ -1,13 +1,34 @@
-## Implementation Plan (⚠️ proposal — not directly confirmed by CAST)
+### Upgrade Implementation Plan (⚠️ Proposal)
 
-1. **Determine Java Version Targets:** Decide, with reference to organizational standards, whether Java 17 or 21 will be used across environments.
-2. **Update Java Runtime/JDK Version:**
-   - Update all build, test, and deploy infrastructure to use the selected Java version (17 or 21).
-   - Update build tool configuration files as necessary to require/enforce Java 17/21. (⚠️ No Maven `pom.xml` or Gradle build files were surfaceable in CAST; see research.md.)
-3. **Update Supporting Properties and Wrapper Files:**
-   - Update any Java-related properties or wrapper files (e.g., `maven-wrapper.properties`) to be consistent with the supported Java version.
-4. **Test Full Build:** Execute a clean build and test cycle using the updated runtime, resolving any compilation or dependency incompatibilities that arise.
-5. **Test Deployment (Staging):** Deploy to a non-prod environment using the new runtime to validate deployment compatibility.
-6. **Rollout to Production:** Deploy changes to production, monitor for runtime errors or regressions.
+**Note:** All actionable steps are based on inferred structure from CAST’s object and file inventory, not on visible settings or pipeline definitions.
 
-All tasks must be coordinated with pipeline/deployment maintainers, as no actual pipeline files (e.g., Dockerfiles, CI/CD scripts) surfaced in discovery.
+1. **Update Maven POM Files**  
+   - Edit all the following pom.xml files:
+     - shopizer-3.2.5/pom.xml
+     - shopizer-3.2.5/sm-shop-model/pom.xml
+     - shopizer-3.2.5/sm-core-modules/pom.xml
+     - shopizer-3.2.5/sm-core-model/pom.xml
+     - shopizer-3.2.5/sm-core/pom.xml
+     - shopizer-3.2.5/sm-shop/pom.xml  
+   - For each, set the Java source/target version by adding or updating:
+     - `<maven.compiler.source>17</maven.compiler.source>`
+     - `<maven.compiler.target>17</maven.compiler.target>`  
+   - If using `maven-toolchains-plugin`, set Java `version=17` or desired target across effective pom hierarchy.  
+   - If a parent pom, make property changes there and ensure submodules do not override to a lower version.
+
+2. **Build Agent/Developer Environment**  
+   - Ensure all local and CI/CD agents used for Maven builds are running Java 17 or 21 (`JAVA_HOME`/`PATH`).
+
+3. **Deployment Environment**  
+   - (If containerized) Update Docker images/base images to Java 17/21 (not visible in CAST; must be confirmed manually).
+   - (If not containerized) Ensure VMs/app servers run Java 17/21.
+   - Document/coordinate the switch, ensuring rollback path (Test old vs new runtime as needed).
+
+4. **Testing and Validation**  
+   - Run full regression, integration, and smoke tests on Java 17/21 environments.
+   - Watch for dependency or framework incompatibilities, focusing on any hand-written source code or legacy third-party libraries.
+
+5. **Documentation/Knowledge Transfer**  
+   - Record the upgrade rationale, procedure, and any findings in project docs.
+
+---
