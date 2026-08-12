@@ -1,16 +1,22 @@
-# Upgrade Tasks (references traceable CAST Appendix items, or explicit absence)
+### Ordered Implementation Tasks
 
-1. **Confirm Java version target with owner** (Java 17 or 21).
-2. **Update Java runtime in build and deployment environments**
-    - Update configuration for all build and runtime servers to use the selected Java version.
-    - If using Maven Wrapper: locate and edit all detected `maven-wrapper.properties` files ([see Appendix/Research]).
-    - If using Gradle, or other build tools: search again for corresponding files upon future codebase updates—none found in CAST at this time.
-3. **Amend Build Tool Configuration (⚠️ proposal):**
-    - For Maven, update `pom.xml` and plugins to require correct `maven-compiler-plugin` `release` or `source/target` version. **Not available in CAST MCP—[query attempted]**
-    - For Gradle, update `build.gradle` and `gradle-wrapper.properties`. **Not available in CAST MCP—[query attempted]**
-    - For unspecified files (Dockerfile, pipeline, CI): warn that not available in CAST MCP—[query attempted]**
-4. **Update Java property files as required**
-    - Scan all surfaced `.properties` for hard-coded Java versions or relevant JVM options ([see Research appendix], e.g. `application.properties`, `maven-wrapper.properties`).
-5. **Test build and deploy with updated Java version** across all target environments.
-6. **Coordinate rollout with SME responsible for deployment infrastructure** as no Docker, YAML, or CI config files were discoverable.
-7. **Document all changes and verification tests** for audit and compliance purposes.
+1. Review the following Maven poms for Java version compatibility settings:
+     - shopizer-3.2.5/pom.xml
+     - shopizer-3.2.5/sm-shop-model/pom.xml
+     - shopizer-3.2.5/sm-core-modules/pom.xml
+     - shopizer-3.2.5/sm-core-model/pom.xml
+     - shopizer-3.2.5/sm-core/pom.xml
+     - shopizer-3.2.5/sm-shop/pom.xml  
+   (Appendix: Query Log #5–11)
+
+2. In each pom, update (or add if missing) `<maven.compiler.source>` and `<maven.compiler.target>` property values to `17` (or `21` as needed).
+
+3. This update should also be mirrored in any Maven Toolchains plugin or related version markers set in the poms (not visible in CAST MCP; confirm in SCM).
+
+4. Communicate/verify the new Java version requirement with all infrastructure/DevOps/CI stakeholders (runtime and build host alignment).
+
+5. Coordinate build agent (`JAVA_HOME`) and deployment (container/Docker image/server/VM) updates to use the new Java version everywhere the app is built and run.
+
+6. Regression and integration test all modules as built and executed under the new Java runtime, focusing on errors, deprecated APIs, or library incompatibilities.
+
+7. Finalize upgrade with updated documentation and developer communication notes.
