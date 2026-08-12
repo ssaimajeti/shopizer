@@ -1,0 +1,121 @@
+# application.yml
+
+# --------------------------------------------------------------------
+# Shopizer Application Configuration - Upgraded for Spring Boot 3.2.6
+# All default values should be reviewed and overridden as necessary
+# --------------------------------------------------------------------
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: shopizer
+  # Spring Boot 3.x requires explicit datasource configuration by default
+  datasource:
+    url: jdbc:h2:file:./SALESMANAGER.h2.db
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+    # Hibernate dialect is H2 for example - update as needed
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        format_sql: true
+        # Batch fetch size for Hibernate optimization
+        default_batch_fetch_size: 16
+  mvc:
+    # Spring Boot 3.x no longer registers the mapping of /** by default
+    pathmatch:
+      matching-strategy: ant_path_matcher  # For backwards compatibility, use PathPatternParser if you refactor controllers
+  main:
+    allow-bean-definition-overriding: true
+  # Explicitly declare the Java version for Spring environment (for clarity, not strictly necessary)
+  # This is for documentation only; runtime is established in Dockerfile/build.
+  #java:
+  #  version: 17
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    com.shopizer: DEBUG
+  file:
+    name: shopizer.log
+
+# ---- Springdoc OpenAPI replaces Springfox Swagger ----
+# New OpenAPI configuration defaults for Springdoc (Springfox was removed with Spring Boot 3.x)
+springdoc:
+  api-docs:
+    path: /v3/api-docs  # New default path for OpenAPI docs in Springdoc
+  swagger-ui:
+    path: /swagger-ui.html  # Access Swagger UI at this path
+  # Add grouping, authentication, or customizations as needed
+
+# springfox:
+#   # Springfox properties DEPRECATED with Spring Boot 3.x and Springdoc migration
+#   documentation:
+#     enabled: false
+
+#---- Database migration tool config placeholder ----
+# flyway:
+#   enabled: true
+#   locations: classpath:db/migration
+
+#---- Application-specific (sample) ----
+shopizer:
+  # Application-level settings (add as needed)
+  feature-flags:
+    enable-b2b: false
+  catalogs:
+    default-catalog-name: default
+
+#---- Security and Actuator ----
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
+  info:
+    env:
+      enabled: true
+
+#---- Internationalization ----
+spring:
+  messages:
+    basename: messages/messages
+    encoding: UTF-8
+
+#---- File upload ----
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+#---- Jackson Serialization ----
+spring:
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+
+#---- Updated Java version (for documentation) ----
+info:
+  app:
+    version: 3.2.6 # App version for reference — critically pinned to target version
+    java:
+      runtime: 17   # Java runtime version required by Spring Boot 3.2.6
+
+#---- Deprecated/Removed Keys ----
+# swagger.enabled: true  # DEPRECATED: Replaced with springdoc configuration as of Spring Boot 3.x
