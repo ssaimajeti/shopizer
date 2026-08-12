@@ -1,8 +1,23 @@
-### Proposed Implementation Plan (⚠️ denotes proposal, not CAST-confirmed)
-1. ⚠️ Inventory existing Java language usage, dependency versions, and build tooling in Shopizer-3.2.5.
-2. ⚠️ Update build configuration and deployment scripts to target Java 17.
-3. ⚠️ Identify code patterns/dependencies not compatible with Java 17 using quality and migration advisor results.
-4. ⚠️ Modify/upgrade dependencies and code found to block/flag compatibility.
-5. ⚠️ Execute full regression and feature testing (especially on affected endpoints, see Technical Appendix).
-6. ⚠️ Validate against all CAST-reported quality/security rules after upgrade.
-7. ⚠️ Deploy to test/UAT, monitor for further issues, finalize rollout.
+# Implementation Plan
+
+1. **Assess Current Java Usage**
+   - Cast shows this application uses Java technology, but cannot confirm exact current Java version, runtime, or build tool (see Research).
+
+2. **Inventory Java Source Artifacts**
+   - Enumerated main Java classes and fields as evidence of a significant Java codebase.
+   - No package-level metadata or build tool files (`pom.xml`, `build.gradle`) detected inside CAST (see Research). Their absence may reflect scanning config.
+
+3. **Upgrade Steps**
+   - Review project structure on disk for `pom.xml`, `build.gradle`, or other build descriptors to perform the upgrade (⚠️ proposal, not CAST).
+   - Update the build tool configuration to target Java 17.
+   - Update CI/build environment to provide a Java 17 JDK.
+   - Run the full build and resolve compilation or dependency issues.
+   - Run runtime tests (smoke/functional/custom) under Java 17.
+
+4. **Assess Potential Quality Impacts**
+   - Review and triage CAST-detected quality issues for anticipated Java 17 breakage. Confirm test coverage for critical flows.
+   - See green, cloud, ISO 5055 and structural findings summary in Research.
+
+5. **Standing Query/Compliance Gaps**
+   - Reiterate in all records that no BCM was supplied, so full-app queries were used throughout (in tasks and research).
+
