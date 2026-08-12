@@ -11,7 +11,7 @@ orbs:
 executors:
   shopizer-ci:
     docker:
-      - image: shopizerecomm/ci:java3.2.6
+      - image: shopizerecomm/ci:java21
         auth:
           username: shopizerecomm
           password: $DOCKERHUB_PASSWORD  
@@ -57,10 +57,10 @@ jobs:
        - run: |
            docker login -u shopizerecomm -p $DOCKERHUB_PASSWORD
        - run: |
-           (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.6)
+           (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.1)
        - run:
            name: push image
-           command: docker push shopizerecomm/shopizer:3.2.6
+           command: docker push shopizerecomm/shopizer:3.2.1
 
 # Orchestrate our job run sequence
 workflows:
