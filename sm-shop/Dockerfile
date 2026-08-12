@@ -1,4 +1,4 @@
-FROM eclipse-temurin:3.2.6-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 RUN mkdir /opt/app
 RUN mkdir /files
 COPY target/shopizer.jar /opt/app
