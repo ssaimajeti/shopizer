@@ -1,66 +1,47 @@
-### CAST MCP Research Log and Technical Appendix
+# Technical Appendix / Research
 
-#### Query Log
+## A. Query Log
 
-| # | Tool                | Scope/Args                                    | Result Count / Disposition      | Objects (name/ID)           |
-|---|---------------------|-----------------------------------------------|-------------------------------|-----------------------------|
-| 1 | applications        | N/A                                           | 9 / run-returned              | Shopizer-3.2.5 ([name only], ID not provided) |
-| 2 | stats               | Shopizer-3.2.5                                | 1 / run-returned              | Techs: Java, Java EE, Spring; 91162 LOC, 16572 elements |
-| 3 | packages            | Shopizer-3.2.5                                | 0 / run-empty                 | Not available               |
-| 4 | object_profiles     | Shopizer-3.2.5                                | run-returned (dozens)         | See below for types         |
-| 5 | quality_insights    | Shopizer-3.2.5, structural-flaws              | 3 / run-returned              | rules, see below           |
-| 6 | quality_insights    | Shopizer-3.2.5, cve                           | 0 / run-empty                 | —                           |
-| 7 | quality_insights    | Shopizer-3.2.5, cloud-detection-patterns      | 23 / run-returned             | see below                   |
-| 8 | transactions        | Shopizer-3.2.5                                | run-returned (>50 endpoints)  | see below                   |
+1. *applications*, no scope filter — 9 results (run-returned): Shopizer-3.2.5 (no ID), etc.
+2. *stats*, application=Shopizer-3.2.5 — 1 result (run-returned): Java detected in techs.
+3. *packages*, application=Shopizer-3.2.5 — 0 results (run-empty).
+4. *objects*, application=Shopizer-3.2.5, filters=type:contains:Java — multiple results, confirming extensive Java codebase.
+5. *objects*, application=Shopizer-3.2.5, filters=type:equals:Java Class, page=1 — paginated list, confirming presence of many concrete Java classes.
+6. *api_inventory*, application=Shopizer-3.2.5 — large list of endpoints confirming a Spring MVC/REST structure.
+7. *application_database_explorer*, application=Shopizer-3.2.5 — 10+ results; only "Missing Table" records shown (column structure not exposed; expected per Known Limitations).
+8. *quality_insights* for all natures: cloud-detection-patterns, green-detection-patterns, cve (run-empty), structural-flaws, iso-5055 (see details below).
+9. *objects*, filters for build files (`name:contains:pom.xml`, `name:contains:build.gradle`) — 0 results (run-empty).
+10. *object_details*, focus=intra, id=25393 (Java class sample, AsyncConfig) — returned children/fields (run-returned).
 
-**Snapshot ID/date:** Not provided by CAST MCP for any queries in this session.
+**CAST MCP snapshot/version info:** Not available in MCP data queried.
 
----
+## B. Evidence Table
 
-**Appendix: Key CAST Facts**
+| Name/type | ID | Query | Source/Disposition | Notes |
+|-----------|----|-------|--------------------|-------|
+| Shopizer-3.2.5 (application) | [no explicit ID] | applications | returned | Target of all queries |
+| Java Class (sample: AsyncConfig) | 25393 | objects (page=1) | returned | Example of artifact/field structure |
+| Java technology (tech) | [n/a] | stats | returned | Java present along with Spring/JPA/AWS SDK etc. |
+| REST Endpoint (sample: /api/v1/auth/customer/register/) | 13032 | api_inventory | returned | Spring MVC REST API patterns detected |
+| Database table (Missing Table: PRODUCT_VARIANT_GROUP, etc.) | 229351+ | application_database_explorer | returned | Column detail not exposed; known product limitation |
+| Build Descriptor (pom.xml/build.gradle) | [not found] | objects | run-empty | Not observed in CAST — check manually on-disk |
+| Quality insight (various) | (see below) | quality_insights | returned | See below for summary |
 
-##### Application Discovery
-- Shopizer-3.2.5 is in-scope for all queries. No BCM was provided; app-wide analysis performed. (Sources: #1/#2)
+## C. Quality Insights (Sampling)
 
-##### Technologies/Structure
-- Java, Java EE, Hibernate, Spring, AWS/GCP SDKs, 91162 LOC, 16572 elements. (Source: #2)
-- No "package" info available (run-empty, #3).
+- **Cloud/blocker findings** (nature: cloud-detection-patterns): 23 distinct rules, e.g. "CloudReady - Use of an unsecured data string" (35 objects), "CloudReady - Avoid using hardcoded URLs (HTTP protocol)" (23 objects), "CloudReady - Using stateful session" (5 objects), etc.
+- **Green/blocker findings** (nature: green-detection-patterns): High counts for "Avoid instantiations inside loops" (251 objects), "Avoid nested loops" (113), "Avoid empty catch blocks" (90), etc.
+- **ISO 5055**: Issues detected (e.g., "Ensure httpOnly option is enabled for session", "PermitAll or user role should be specified..." etc.).
+- **Structural flaws**: e.g., "Avoid reflected cross-site scripting (non persistent)", "Avoid empty catch blocks", etc.
+- **CVE scanning**: Not available in this application per query; "likely not configured".
 
-##### Java Elements and Endpoints
-- Internal components: Java Class, Java Method, JPQL Query, Spring MVC controllers/operations, JPA Entities, etc. (Source: #4)
-- 81 JPA entities, 108 JPA entity operations, numerous REST endpoint handlers (Source: #4)
-- Multiple endpoint types detected under Spring MVC (GET/POST/PUT/DELETE/ANY ops), see Query #8 for full enumerated routes.
+- See full log above for further details/citations.
 
-##### Transactions (Endpoints)
-- Dozens of clearly mapped REST endpoints:  
-  - E.g. `/api/v1/auth/cart/{}/checkout/`, `/api/v1/auth/customer/`, `/api/v1/auth/orders/`, `/api/v1/content/images/`, etc. (Source: #8)
-  - Each endpoint type (GET/POST/PUT/DELETE) with specific routes, supporting full API regression after JVM upgrade.
+## D. Limitations, Gaps, and Disposition
 
-##### Quality Insights (Structural Flaws, Cloud Detection)
-- Structural flaw rules triggered:
-  1. "Avoid empty catch blocks for methods with high fan-in" — Risk: Reliability.
-  2. "Avoid reflected cross-site scripting (non-persistent)" — 2 findings. Risk: Security.
-  3. "Avoid cross-site scripting through API requests" — 73 findings. Risk: Security.  
-  (Source: #5)
-- Cloud migration/platform blockers:
-  - Use of environment variables, file/directory manipulation, hardcoded URLs/addresses, unsecured data strings, stateful session (Socket/Servlet), in-memory caching.
-  - E.g. Rule: "CloudReady - Use of unsecured data string" (35 objects), "CloudReady - Avoid using hardcoded URLs" (23 objects), and others detailed in #7.
+- Build tool/version information (Maven/Gradle file) not surfaced by CAST — check manually as pre-step.
+- No direct evidence of Java version set in CAST — the presence of Java source artifacts supports upgrade scope.
+- No BCM mapping supplied (all compliance/app-wide).
+- SQL column details not retrieved (known, not treated as an absence).
+- No package objects detected via `packages` query — package structure inferred from Java full class names.
 
-##### CVEs
-- No CVE findings present or scanned (empty result, #6).
-
----
-
-**GR-12/13:**  
-- Not applicable for this feature spec (not a decomposition; all boundaries per CAST surface evidence only).
-
----
-
-**Confidence Key for Facts**  
-- ✅ = Confirmed, direct CAST result  
-- ⚠️ = Proposal/structurally inferred from app-wide CAST analysis  
-- ❌ = CAST query ran but returned no data
-
----
-
-**End of grounded spec kit.**
