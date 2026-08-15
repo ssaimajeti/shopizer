@@ -1,7 +1,7 @@
-# Shopizer 3 (for Java 17 +) (tested with Java 11)
+# Shopizer 3 (for java 1.8 +) (tested with Java 11)
 
 
-### Shopizer 2.X (for Java 1.8 +) is still available
+### Shopizer 2.X (for java 1.8 +) is still available
 
 
 [![last_version](https://img.shields.io/badge/last_version-v3.2.3-blue.svg?style=flat)](https://github.com/shopizer-ecommerce/shopizer/tree/3.2.3)
@@ -25,9 +25,9 @@ Headless commerce and Rest api for ecommerce
 
 Shopizer Headless commerce consists of the following components:
 
-- Spring Boot Java / Spring Boot backend
+- Spring boot Java / Spring boot backend
 - Angular administration web application
-- React JS frontend application
+- React JS front end application
 
 
 
@@ -47,7 +47,7 @@ docker run -p 8080:8080 shopizerecomm/shopizer:latest
        
 2. Run the administration tool
 
-⋅⋅⋅ Requires the Java backend to be running
+⋅⋅⋅ Requires the java backend to be running
 
 ```
 docker run \
@@ -58,12 +58,12 @@ docker run \
 
 3. Run react shop sample site
 
-⋅⋅⋅ Requires the Java backend to be running
+⋅⋅⋅ Requires the java backend to be running
 
 ```
 docker run \
- -e "APP_MERCHANT=DEFAULT" \
- -e "APP_BASE_URL=http://localhost:8080" \
+ -e "APP_MERCHANT=DEFAULT"
+ -e "APP_BASE_URL=http://localhost:8080"
  -p 80:80 shopizerecomm/shopizer-shop-reactjs
 ```
 
@@ -84,7 +84,7 @@ Clone the repository:
 
 If this is your first time using Github, review http://help.github.com to learn the basics.
 
-You can also download the zip file containing the code from https://github.com/shopizer-ecommerce for each of the projects above
+You can also download the zip file containing the code from https://github.com/shopizer-ecommerce for each of the the projects above
 
 To build the application:
 -------------------
@@ -95,9 +95,9 @@ To build the application:
 From the command line:
 
 	$ cd shopizer
-	$ mvnw clean install
+	$ mvn clean install
 	$ cd sm-shop
-	$ mvnw spring-boot:run
+	$ mvn spring-boot:run
 
 2. Shopizer admin
 
@@ -127,13 +127,13 @@ Api documentation <https://app.swaggerhub.com/apis-docs/shopizer/shopizer-rest-a
 
 ChatOps <https://shopizer.slack.com>  - Join our Slack channel https://shopizer-slackin.herokuapp.com/
 
-More information is available on Shopizer website here <http://www.shopizer.com>
+More information is available on shopizer web site here <http://www.shopizer.com>
 
 ### Participation:
 -------------------
 
-If you have an interest in giving feedback or for participating in the Shopizer project in any way
-Feel free to use the contact form <http://www.shopizer.com/contact.html> and share your email address
+If you have interest in giving feedback or for participating to Shopizer project in any way
+Feel to use the contact form <http://www.shopizer.com/contact.html> and share your email address
 so we can send an invite to our Slack channel
 
 ### How to Contribute:
@@ -147,11 +147,11 @@ Clone from fork repository
 
 Build application according to steps provided above
 
-Synchronize latest version with the upstream
+Synchronize lastest version with the upstream
 -------------------
 
-       $ git remote add upstream https://github.com/shopizer-ecommerce/shopizer.git
-	   $ git pull upstream 3.2.3
+       $ git remote add upstream https://github.com/yourusername/shopizer.git
+	  $ git pull upstream 3.2.3
 
 Create new branch in your repository
 -------------------
