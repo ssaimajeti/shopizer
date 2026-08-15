@@ -28,7 +28,7 @@ public class MavenWrapperDownloader {
      * Default URL to download the maven-wrapper.jar from, if no 'downloadUrl' is provided.
      */
     private static final String DEFAULT_DOWNLOAD_URL =
-            "https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.4.2/maven-wrapper-0.4.2.jar";
+            "https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"; // Updated to latest version
 
     /**
      * Path to the maven-wrapper.properties file, which might contain a downloadUrl property to
@@ -76,13 +76,13 @@ public class MavenWrapperDownloader {
                 }
             }
         }
-        System.out.println("- Downloading from: : " + url);
+        System.out.println("- Downloading from: " + url);
 
         File outputFile = new File(baseDirectory.getAbsolutePath(), MAVEN_WRAPPER_JAR_PATH);
         if(!outputFile.getParentFile().exists()) {
             if(!outputFile.getParentFile().mkdirs()) {
                 System.out.println(
-                        "- ERROR creating output direcrory '" + outputFile.getParentFile().getAbsolutePath() + "'");
+                        "- ERROR creating output directory '" + outputFile.getParentFile().getAbsolutePath() + "'");
             }
         }
         System.out.println("- Downloading to: " + outputFile.getAbsolutePath());
