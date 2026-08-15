@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.mavent.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.shopizer</groupId>
@@ -8,7 +8,7 @@
 	<version>3.2.3</version>
 
 	<name>shopizer</name>
-	<url>http://ww.shopizer.com</url>
+	<url>http://www.shopizer.com</url>
 
 	<licenses>
 		<license>
@@ -20,7 +20,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.12</version>
+		<version>2.7.5</version> <!-- Updated Spring Boot version -->
 	</parent>
 
 	<modules>
@@ -34,8 +34,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<!--java version -->
-		<java.version>11</java.version>
+		<!-- Java version updated to 17 for compatibility -->
+		<java.version>17</java.version>
 
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
@@ -43,7 +43,7 @@
 		<shopizer.search.version>2.11.1</shopizer.search.version>
 		<shopizer-canadapost.version>2.15.0</shopizer-canadapost.version>
 
-		<!-- Updated Elasticsearch version for compatibility -->
+		<!-- Elasticsearch version updated to 8.2.0 -->
 		<elasticsearch.version>8.2.0</elasticsearch.version>
 		<guava.version>27.1-jre</guava.version>
 		<commons-lang.version>3.5</commons-lang.version>
@@ -64,8 +64,11 @@
 		<oracle.version>18.3.0.0</oracle.version>
 		<postgresql.version>42.2.18</postgresql.version>
 		<simple-json-version>1.1.1</simple-json-version>
-		<jackson-version-databind>2.12.6.1</jackson-version-databind>
-		<jackson-version>2.10.2</jackson-version>
+
+		<!-- Updated Jackson version for security vulnerabilities -->
+		<jackson-version-databind>2.13.3</jackson-version-databind>
+		<jackson-version>2.13.3</jackson-version>
+
 		<geoip2.version>2.7.0</geoip2.version>
 		<drools.version>7.32.0.Final</drools.version>
 		<google-client-maps-services-version>0.1.6</google-client-maps-services-version>
@@ -77,13 +80,11 @@
 		<!-- jacoco coverage -->
 		<coverage.lines>.30</coverage.lines>
 		<coverage.branches>.37</coverage.branches>
-
 	</properties>
 
 	<!--BOM -->
 	<dependencyManagement>
 		<dependencies>
-
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-web</artifactId>
@@ -113,26 +114,28 @@
 				<version>3.2.3</version>
 			</dependency>
 
-			<!-- https://mvnrepository.com/artifact/javax.inject/javax.inject -->
+			<!-- JavaX Dependency -->
 			<dependency>
 				<groupId>javax.inject</groupId>
 				<artifactId>javax.inject</artifactId>
 				<version>${javax.inject.version}</version>
 			</dependency>
 
-			<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+			<!-- Commons Lang -->
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
 				<version>${commons-lang.version}</version>
 			</dependency>
 
+			<!-- MapStruct -->
 			<dependency>
 				<groupId>org.mapstruct</groupId>
 				<artifactId>mapstruct</artifactId>
 				<version>${org.mapstruct.version}</version>
 			</dependency>
 
+			<!-- JWT -->
 			<dependency>
 				<groupId>io.jsonwebtoken</groupId>
 				<artifactId>jjwt</artifactId>
@@ -145,55 +148,46 @@
 				<artifactId>jackson-databind</artifactId>
 				<version>${jackson-version-databind}</version>
 			</dependency>
-
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
 				<version>${jackson-version}</version>
 			</dependency>
-
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-annotations</artifactId>
 				<version>${jackson-version}</version>
 			</dependency>
 
-			<!-- https://mvnrepository.com/artifact/javax.mail/mail -->
+			<!-- JavaMail API -->
 			<dependency>
 				<groupId>javax.mail</groupId>
 				<artifactId>mail</artifactId>
 				<version>1.4.7</version>
 			</dependency>
 
-			<!-- http://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
+			<!-- JSON Simple -->
 			<dependency>
 				<groupId>com.googlecode.json-simple</groupId>
 				<artifactId>json-simple</artifactId>
 				<version>${simple-json-version}</version>
 			</dependency>
 
+			<!-- MySQL Connector -->
 			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
 				<version>${mysql-jdbc-version}</version>
 			</dependency>
 
-			<!-- For connecting to oracle -->
-			<!-- <dependency> <groupId>com.oracle.database.jdbc</groupId> <artifactId>ojdbc8</artifactId> 
-				<version>${oracle.version}</version> </dependency> -->
-
-
-			<!-- For connecting to postgresql -->
-			<!-- <dependency> <groupId>org.postgresql</groupId> <artifactId>postgresql</artifactId> 
-				<version>${postgresql.version}</version> <scope>runtime</scope> </dependency> -->
-
-			<!-- Google Map API -->
+			<!-- Google Maps Service -->
 			<dependency>
 				<groupId>com.google.maps</groupId>
 				<artifactId>google-maps-services</artifactId>
 				<version>${google-client-maps-services-version}</version>
 			</dependency>
 
+			<!-- KIE and Drools -->
 			<dependency>
 				<groupId>org.kie</groupId>
 				<artifactId>kie-ci</artifactId>
@@ -220,13 +214,12 @@
 				<artifactId>drools-compiler</artifactId>
 				<version>${drools.version}</version>
 			</dependency>
-			<!--spring integration -->
+			<!-- Spring integration -->
 			<dependency>
 				<groupId>org.kie</groupId>
 				<artifactId>kie-spring</artifactId>
 				<version>${drools.version}</version>
 			</dependency>
-			<!-- end rules engine -->
 
 			<!-- Infinispan -->
 			<dependency>
@@ -234,33 +227,29 @@
 				<artifactId>infinispan-core</artifactId>
 				<version>${infinispan.version}</version>
 			</dependency>
-
 			<dependency>
 				<groupId>org.infinispan</groupId>
 				<artifactId>infinispan-cachestore-jdbc</artifactId>
 				<version>${infinispan.tree.version}</version>
 			</dependency>
-
 			<dependency>
 				<groupId>org.infinispan</groupId>
 				<artifactId>infinispan-tree</artifactId>
 				<version>${infinispan.version}</version>
 			</dependency>
 
-			<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
+			<!-- Apache Commons Collections -->
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-collections4</artifactId>
 				<version>${commons-collections4.version}</version>
 			</dependency>
 
-
-			<!-- https://mvnrepository.com/artifact/commons-validator/commons-validator -->
+			<!-- Commons Validator -->
 			<dependency>
 				<groupId>commons-validator</groupId>
 				<artifactId>commons-validator</artifactId>
 				<version>${commons-validator.version}</version>
-
 				<exclusions>
 					<exclusion>
 						<groupId>commons-collections</groupId>
@@ -269,21 +258,19 @@
 				</exclusions>
 			</dependency>
 
-			<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
+			<!-- AWS SDK -->
 			<dependency>
 				<groupId>com.amazonaws</groupId>
 				<artifactId>aws-java-sdk-s3</artifactId>
 				<version>1.11.640</version>
 			</dependency>
-
-			<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-ses -->
 			<dependency>
 				<groupId>com.amazonaws</groupId>
 				<artifactId>aws-java-sdk-ses</artifactId>
 				<version>1.11.640</version>
 			</dependency>
 
-			<!-- google cloud storage -->
+			<!-- Google Cloud Storage -->
 			<dependency>
 				<groupId>com.google.cloud</groupId>
 				<artifactId>google-cloud-storage</artifactId>
@@ -296,23 +283,19 @@
 				</exclusions>
 			</dependency>
 
-
-			<!-- Payment dependencies -->
-
+			<!-- Payment Dependencies -->
 			<!-- Paypal -->
 			<dependency>
 				<groupId>com.paypal.sdk</groupId>
 				<artifactId>merchantsdk</artifactId>
 				<version>2.6.109</version>
 			</dependency>
-
 			<!-- Stripe -->
 			<dependency>
 				<groupId>com.stripe</groupId>
 				<artifactId>stripe-java</artifactId>
 				<version>19.5.0</version>
 			</dependency>
-
 			<!-- Braintree -->
 			<dependency>
 				<groupId>com.braintreepayments.gateway</groupId>
@@ -320,6 +303,20 @@
 				<version>2.73.0</version>
 			</dependency>
 
-			<!-- https://mvnrepository.com/artifact/com.maxmind.geoip2/geoip2 -->
+			<!-- GeoIP2 -->
 			<dependency>
-				<groupId
+				<groupId>com.maxmind.geoip2</groupId>
+				<artifactId>geoip2</artifactId>
+				<version>${geoip2.version}</version>
+			</dependency>
+
+			<!-- Guava -->
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>${guava.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+</project>
