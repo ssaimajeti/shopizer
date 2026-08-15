@@ -1,13 +1,17 @@
-### Research & Compliance
+## Research Document for Spring Boot Upgrade
 
-1. **Application Statistics:**
-   - Total Lines of Code (LOC): 91,162
-   - Total Elements: 16,572
-   - Total Interactions: 72,325
-   - Technologies: AWS SDK, Google Cloud Storage, Hibernate, Java, Java EE, JPA, Spring, etc. (Source: CAST MCP — [stats]).
+### CAST Analysis Findings
+- **Transactions**: Extensive use of Spring MVC endpoints in multiple categories, including customer, order, content, and product management.
+- **Quality Analysis**:
+   - Avoid Empty Catch Blocks: 2 occurrences impacting reliability noted.
+   - Reflected XSS: 2 known vulnerabilities impacting security.
+   - XSS through API Requests: Significant presence (73 instances) detected for potential XSS vulnerability.
 
-2. **Framework Usage:**
-   - Identified various Spring MVC operations, indicating extensive use of Spring MVC in the application (Source: CAST MCP — [objects]).
+### Technical Appendix
+- **Name/ID Pairing**:
+  - `DefaultController` with endpoint `/` is a significant entry for zero-depth method management.
+  - Identified selectors with associated security risks: 
+    - Cross-Site Scripting ID: 8408
+    - Cross-Site Scripting ID: 8482
 
-3. **Build Tool:**
-   - No build manifest files (`pom.xml` or `build.gradle`) were identified in the analysis (Source: CAST MCP — [objects]).
+All findings from the CAST MCP structural discovery and quality insights.
