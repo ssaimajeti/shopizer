@@ -1,26 +1,24 @@
-# Research Findings
+## CAST Research Findings
 
-## Query Log
-1. **Application Discovery**
-   - **Query:** View available applications in the environment
-   - **Result:** Shopizer-3.2.5 among others
+1. **Application Identification** ✅
+   - Target Application: Shopizer-3.2.5, flagged for absence of BCM.
+   - (Source: CAST MCP — `applications` : Shopizer-3.2.5)
 
-2. **Object Type Queries**
-   - **Queries:**
-     1. JPA Entities, Spring Beans, Spring MVC
-     2. Result offered significant findings - numerous objects/forms
-   - **Dispositions:**
-     - JPA Entity count was robust, details truncated due to tool limitations
-     - MVC operations included both REST endpoints and standard POST operations
+2. **Technology Stack and Elements** ✅
+   - Stats: 91,162 LOC, 16,572 element count, 72,325 interactions.
+   - Technologies include AWS SDK, Google Cloud Storage, Hibernate, Java, etc.
+   - (Source: CAST MCP — `stats` : Shopizer-3.2.5)
 
-3. **Application Stats Audit**
-   - **Query:** Overall technology stack and element count
-   - **Result:** Java, Java EE, Spring, ~91K LOC
+3. **Elemental Object Queries** ✅
+   - JPA Entities found: `Catalog (17945)`, `Customer (7189)` etc.
+   - Spring Beans present include: `appConfiguration (21295)`
+   - MVC Operations, e.g., `GET /api/v1/auth/products (12959)`
+   - (Source: CAST MCP - `objects`: Shopizer-3.2.5)
 
-4. **Build Manifest Lookup**
-   - **Query:** Locate `pom.xml` or `build.gradle` files
-   - **Result:** File-specific queries returned no results; suggesting a review by manual inspection or documentation reference
+4. **Deployment Configuration Absence** ❌
+   - No deployment configuration files found.
+   - (Source: CAST MCP — `objects`: query iscoped for deployment)
+   
+Queries were executed under CAST version constraint, and errors were retried where applicable. Absence of SCM integration or observed build tools implementations need manual confirmation.
 
----
-
-(The above outlines work required and recommendations for manual verification considering of internal code structures.).
+(Source: CAST MCP).
