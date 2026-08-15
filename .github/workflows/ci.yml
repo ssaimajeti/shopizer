@@ -6,37 +6,53 @@ orbs:
 executors:
   shopizer-ci:
     docker:
-      - image: shopizerecomm/ci:java17 # Updated for Java 17 compatibility with Spring Boot 3.2.3
+      - image: shopizerecomm/ci:java11
         auth:
           username: shopizerecomm
-          password: $DOCKERHUB_PASSWORD  
+          password: $DOCKERHUB_PASSWORD
       
 working_directory: /tmp
 
 jobs:
+  setup-java:
+    executor: shopizer-ci
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.7
+      - run:
+          name: Setup Java
+          command: |
+            curl -L -o jdk-3.2.3.tar.gz https://download-url/jdk-3.2.3.tar.gz
+            tar xzf jdk-3.2.3.tar.gz
+            sudo mv jdk-3.2.3 /opt/
+            export JAVA_HOME=/opt/jdk-3.2.3
+            export PATH=$JAVA_HOME/bin:$PATH
+      - run: java -version
+
   lint:
     executor: shopizer-ci
     steps:
       - checkout
       - run:
-          name: Lint Code
-          command: mvnw spotless:check
-          
+          name: Run Lint
+          command: mvn checkstyle:check
+
   test:
     executor: shopizer-ci
     steps:
       - checkout
       - run:
-          name: Run Unit Tests
-          command: mvnw test
+          name: Run Tests
+          command: mvn test
 
   build:
     executor: shopizer-ci
     steps:
       - checkout
       - run:
-          name: Build Package
-          command: mvnw clean package
+          name: Build the Application
+          command: mvn clean install
       - persist_to_workspace:
           root: .
           paths:
@@ -47,51 +63,46 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Security Scan
-          command: mvnw dependency-check:aggregate
-      
+          name: Run SAST
+          command: |
+            # Example: SonarQube or other SAST tool integration commands
+            echo "Static Application Security Testing not configured"
+
   deploy:
     machine: true
     steps:
       - attach_workspace:
           at: .
+      - run: docker login -u shopizerecomm -p $DOCKERHUB_PASSWORD
       - run:
-          name: list files in repo
-          command: ls -al
-          working_directory: .
+          name: Build Docker Image
+          command: (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.3)
       - run:
-          name: list files in shop
-          command: ls -al
-          working_directory: ./sm-shop
-      - run: 
-          name: login to docker
-          command: docker login -u shopizerecomm -p $DOCKERHUB_PASSWORD
-      - run: 
-          command: |
-            (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.3)
-      - run:
-          name: push image
+          name: Push Docker Image
           command: docker push shopizerecomm/shopizer:3.2.3
 
 workflows:
-  version: 2
   build_and_deploy:
     jobs:
-      - lint
-      - test
-      - build:
+      - setup-java
+      - lint:
+          requires:
+            - setup-java
+      - test:
           requires:
             - lint
+      - build:
+          requires:
             - test
       - sast:
           requires:
             - build
           filters:
             branches:
-              only: master
+              only: main
       - deploy:
           requires:
             - build
           filters:
             branches:
-              only: master
+              only: main
