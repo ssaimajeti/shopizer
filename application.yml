@@ -1,0 +1,64 @@
+version: 2.1
+
+orbs:
+  slack: circleci/slack@4.1.0 # Upgraded Slack orb to latest version supported by CircleCI
+
+executors:
+  shopizer-ci:
+    docker:
+      # Updated to Java 17 as Spring Boot 3.x requires a Java version 17+
+      - image: shopizerecomm/ci:java17 
+        auth:
+          username: shopizerecomm
+          password: $DOCKERHUB_PASSWORD
+
+working_directory: /tmp
+
+jobs:
+  build:
+    executor: shopizer-ci
+    steps:
+      - checkout
+      - run: echo "shopizer build and test (1)"
+      - run:
+          name: Run shell script
+          command: |
+            set -x
+            /home/shopizer/tools/shopizer.sh tests
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./sm-shop
+
+  deploy:
+    machine: true
+    steps:
+       - attach_workspace:
+           at: .
+       - run:
+           name: list files in repo
+           command: ls -al
+           working_directory: .
+       - run:
+           name: list files in shop
+           command: ls -al
+           working_directory: ./sm-shop
+       - run:
+           name: list files in shop/target
+           command: ls -al
+           working_directory: ./sm-shop/target
+       - run: |
+           docker login -u shopizerecomm -p $DOCKERHUB_PASSWORD
+       - run: |
+           (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.1)
+       - run:
+           name: push image
+           command: docker push shopizerecomm/shopizer:3.2.1
+
+workflows:
+  build_and_deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
