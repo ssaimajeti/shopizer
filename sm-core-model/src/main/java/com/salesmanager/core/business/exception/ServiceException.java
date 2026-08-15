@@ -6,7 +6,7 @@ package com.salesmanager.core.business.exception;
 public class ServiceException extends Exception {
 
 	private static final long serialVersionUID = -6854945379036729034L;
-	private int exceptionType = 0;//regular error
+	private int exceptionType = 0; //regular error
 	
 
 	public final static int EXCEPTION_ERROR = 500;
