@@ -67,12 +67,12 @@ public class MavenWrapperDownloader {
             } catch (IOException e) {
                 System.out.println("- ERROR loading '" + MAVEN_WRAPPER_PROPERTIES_PATH + "'");
             } finally {
-                try {
-                    if(mavenWrapperPropertyFileInputStream != null) {
+                if(mavenWrapperPropertyFileInputStream != null) {
+                    try {
                         mavenWrapperPropertyFileInputStream.close();
+                    } catch (IOException e) {
+                        // Ignore ...
                     }
-                } catch (IOException e) {
-                    // Ignore ...
                 }
             }
         }
@@ -82,7 +82,7 @@ public class MavenWrapperDownloader {
         if(!outputFile.getParentFile().exists()) {
             if(!outputFile.getParentFile().mkdirs()) {
                 System.out.println(
-                        "- ERROR creating output direcrory '" + outputFile.getParentFile().getAbsolutePath() + "'");
+                        "- ERROR creating output directory '" + outputFile.getParentFile().getAbsolutePath() + "'");
             }
         }
         System.out.println("- Downloading to: " + outputFile.getAbsolutePath());
