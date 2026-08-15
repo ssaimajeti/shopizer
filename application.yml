@@ -1,0 +1,81 @@
+version: 2.1
+
+orbs:
+  slack: circleci/slack@4.1.0 # Upgraded to latest version for security and new features
+
+executors:
+  shopizer-ci:
+    docker:
+      - image: shopizerecomm/ci:java11
+        auth:
+          username: shopizerecomm
+          password: $DOCKERHUB_PASSWORD
+
+working_directory: /tmp
+
+jobs:
+  build:
+    executor: shopizer-ci
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run: echo "shopizer build and test (1)"
+      - run:
+          name: Install dependencies
+          command: ./mvnw install
+      - run:
+          name: Run shell script
+          command: |
+            set -x
+            /home/shopizer/tools/shopizer.sh tests
+      - save_cache:
+          paths:
+            - ./sm-shop
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./sm-shop
+      - store_artifacts:
+          path: sm-shop/target
+          destination: builds
+
+  deploy:
+    machine: true
+    steps:
+       - attach_workspace:
+          at: .
+       - run:
+           name: list files in repo
+           command: ls -al
+           working_directory: .
+       - run:
+           name: list files in shop
+           command: ls -al
+           working_directory: ./sm-shop
+       - run:
+           name: list files in shop/target
+           command: ls -al
+           working_directory: ./sm-shop/target
+       - run:
+           name: Start Docker service (required for login)
+           command: sudo service docker start
+       - run: |
+           docker login -u shopizerecomm -p $DOCKERHUB_PASSWORD
+       - run: |
+           (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.1)
+       - run:
+           name: push image
+           command: docker push shopizerecomm/shopizer:3.2.1
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
