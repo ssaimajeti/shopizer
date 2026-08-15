@@ -1,56 +1,159 @@
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
-import org.springframework.web.reactive.config.EnableWebFlux;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.codec.ServerCodecConfigurer;
-import org.springframework.web.reactive.config.WebFluxConfigurer;
+package com.salesmanager.core.model.catalog.product.attribute;
 
-@SpringBootApplication
-public class ShopApplication {
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-    public static void main(String[] args) {
-        SpringApplication.run(ShopApplication.class, args);
-    }
-    
-    @Bean
-    public MethodValidationPostProcessor methodValidationPostProcessor() {
-        return new MethodValidationPostProcessor();
-    }
+// Renaming javax.* to jakarta.* as per Spring Boot 3.x transition
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 
-    // TODO: Verify if any endpoints are affected by the transition from Spring MVC to Spring WebFlux.
-    // Manual intervention is required to check for reactive programming impacts.
+import org.springframework.web.multipart.MultipartFile;
+
+import com.salesmanager.core.model.generic.SalesManagerEntity;
+import com.salesmanager.core.model.merchant.MerchantStore;
+
+
+@Entity
+@Table(name="PRODUCT_OPTION_VALUE", 
+indexes = { @Index(name="PRD_OPTION_VAL_CODE_IDX", columnList = "PRODUCT_OPTION_VAL_CODE")}, 
+uniqueConstraints=
+	@UniqueConstraint(columnNames = {"MERCHANT_ID", "PRODUCT_OPTION_VAL_CODE"}))
+public class ProductOptionValue extends SalesManagerEntity<Long, ProductOptionValue> {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@Column(name="PRODUCT_OPTION_VALUE_ID")
+	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "PRODUCT_OPT_VAL_SEQ_NEXT_VAL")
+	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
+	private Long id;
+	
+	@Column(name="PRODUCT_OPT_VAL_SORT_ORD")
+	private Integer productOptionValueSortOrder;
+	
+	@Column(name="PRODUCT_OPT_VAL_IMAGE")
+	private String productOptionValueImage;
+	
+	@Column(name="PRODUCT_OPT_FOR_DISP")
+	private boolean productOptionDisplayOnly=false;
+	
+	@NotEmpty
+	@Pattern(regexp="^[a-zA-Z0-9_]*$")
+	@Column(name="PRODUCT_OPTION_VAL_CODE")
+	private String code;
+
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "productOptionValue")
+	private Set<ProductOptionValueDescription> descriptions = new HashSet<ProductOptionValueDescription>();
+	
+	@Transient
+	private MultipartFile image = null;
+	
+	public MultipartFile getImage() {
+		return image;
+	}
+
+	public void setImage(MultipartFile image) {
+		this.image = image;
+	}
+
+	@Transient
+	private List<ProductOptionValueDescription> descriptionsList = new ArrayList<ProductOptionValueDescription>();
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="MERCHANT_ID", nullable=false)
+	private MerchantStore merchantStore;
+	
+	public ProductOptionValue() {
+	}
+
+	@Override
+	public Long getId() {
+		return id;
+	}
+
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Integer getProductOptionValueSortOrder() {
+		return productOptionValueSortOrder;
+	}
+
+	public void setProductOptionValueSortOrder(Integer productOptionValueSortOrder) {
+		this.productOptionValueSortOrder = productOptionValueSortOrder;
+	}
+
+	public String getProductOptionValueImage() {
+		return productOptionValueImage;
+	}
+
+	public void setProductOptionValueImage(String productOptionValueImage) {
+		this.productOptionValueImage = productOptionValueImage;
+	}
+
+	public Set<ProductOptionValueDescription> getDescriptions() {
+		return descriptions;
+	}
+
+	public void setDescriptions(Set<ProductOptionValueDescription> descriptions) {
+		this.descriptions = descriptions;
+	}
+
+	public MerchantStore getMerchantStore() {
+		return merchantStore;
+	}
+
+	public void setMerchantStore(MerchantStore merchantStore) {
+		this.merchantStore = merchantStore;
+	}
+
+	public void setDescriptionsList(List<ProductOptionValueDescription> descriptionsList) {
+		this.descriptionsList = descriptionsList;
+	}
+
+	public List<ProductOptionValueDescription> getDescriptionsList() {
+		return descriptionsList; 
+	}
+	
+	public List<ProductOptionValueDescription> getDescriptionsSettoList() {
+		if(descriptionsList==null || descriptionsList.size()==0) {
+			descriptionsList = new ArrayList<ProductOptionValueDescription>(this.getDescriptions());
+		} 
+		return descriptionsList;
+	}
+
+	public boolean isProductOptionDisplayOnly() {
+		return productOptionDisplayOnly;
+	}
+
+	public void setProductOptionDisplayOnly(boolean productOptionDisplayOnly) {
+		this.productOptionDisplayOnly = productOptionDisplayOnly;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public String getCode() {
+		return code;
+	}
 }
 
-@Configuration
-@EnableWebFlux
-class WebFluxConfig implements WebFluxConfigurer {
-
-    @Override
-    public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
-        // Customize the codec settings if necessary, for WebFlux REST API compatibility.
-    }
-}
-
-// Package renaming and deprecations
-// TODO: Replace org.springframework.boot.context packages and classes with their new equivalents if applicable.
-// The following is a potential example for such migrations, assuming hypothetical deprecations:
-
-// import org.springframework.boot.context.embedded.*;
-// import org.springframework.boot.web.servlet.server.*;
-
-class MigrationHelper {
-
-    public static void handleDeprecations() {
-        // Handler for deprecated API usage to backward compatible code
-        // TODO: Check all deprecated usage for Java 11 functions or classes and replace them with Java 17 equivalents when required
-    }
-
-    public static void handleConfigChanges() {
-        // Transform old config format to the new one
-        // TODO: Inspect application.properties or application.yml for deprecated properties and adapt them
-    }
-    
-    // TODO: Add utility methods for other deprecated APIs replaced by Spring Boot 3.2.3 to ensure logic re-mapping
-}
+// Following logical updates for package renaming and deprecated API replacements can be applied to appropriate files as shown in this example. Make sure the version constraint is respected throughout CI/CD configuration and supporting files like pom.xml, Dockerfiles, etc.
