@@ -1,26 +1,45 @@
-# Use the official Maven image to build the application
-FROM maven:3.8.5-eclipse-temurin-21 as builder
+FROM eclipse-temurin:21-jre-alpine AS build
+
+# Set build environment variables.
+ENV MAVEN_VERSION=3.8.8
+ENV MAVEN_HOME=/usr/share/maven
+ARG USER_HOME_DIR="/root"
+ARG SHA=42c3882fa471dd7b6ce9e8f9a6de6792018d2bbd
+ARG BASE_URL=https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries
+ARG MAVEN_OPTS="-Dorg.slf4j.simpleLogger.showThreadName=false -Dorg.slf4j.simpleLogger.showShortLog=true -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.repo.local=${USER_HOME_DIR}/.m2/repository"
+
+# Install Maven.
+RUN apk add --no-cache curl tar bash && \
+    mkdir -p /usr/share/maven /usr/share/maven/ref && \
+    curl -fsSL -o /tmp/apache-maven.tar.gz "${BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz" && \
+    echo "${SHA}  /tmp/apache-maven.tar.gz" | sha1sum -c - && \
+    tar -xf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 && \
+    rm -f /tmp/apache-maven.tar.gz && \
+    ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+
+# Set work directory.
 WORKDIR /app
 
-# Copy the pom.xml and install dependencies
-COPY pom.xml .
-RUN mvn dependency:go-offline
+# Copy all source code to the container.
+COPY . .
 
-# Copy the source code and build the application
-COPY src ./src
-RUN mvn -DskipTests clean package
+# Install project dependencies and compile.
+RUN mvn -B -f pom.xml clean package -DskipTests
 
-# Use the official Eclipse Temurin image for Java 21
+# Preparing runtime image.
 FROM eclipse-temurin:21-jre-alpine
 
-# Set the working directory
-WORKDIR /app
+# Set environment variables.
+ENV APP_HOME=/app \
+    JAVA_OPTS=""
 
-# Copy only the necessary JAR from the builder stage
-COPY --from=builder /app/target/*.jar app.jar
+WORKDIR ${APP_HOME}
 
-# Expose the application port
+# Copy application JAR file from build stage.
+COPY --from=build /app/target/sm-shop.jar ${APP_HOME}/app.jar
+
+# Expose the application port.
 EXPOSE 8080
 
-# Run the application
-CMD ["java", "-jar", "app.jar"]
+# Run the application.
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
