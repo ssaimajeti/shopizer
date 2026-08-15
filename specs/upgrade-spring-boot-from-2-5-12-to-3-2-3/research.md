@@ -1,17 +1,16 @@
-## Research Document for Spring Boot Upgrade
+# CAST MCP Research Findings
 
-### CAST Analysis Findings
-- **Transactions**: Extensive use of Spring MVC endpoints in multiple categories, including customer, order, content, and product management.
-- **Quality Analysis**:
-   - Avoid Empty Catch Blocks: 2 occurrences impacting reliability noted.
-   - Reflected XSS: 2 known vulnerabilities impacting security.
-   - XSS through API Requests: Significant presence (73 instances) detected for potential XSS vulnerability.
+## Application Overview
+- **Application Name:** Shopizer-3.2.5
+- **Lines of Code (LOC):** 91,162
+- **Element Count:** 16,572
+- **Interaction Count:** 72325
+- **Technologies:** AWS SDK S3, Google Cloud Storage, Hibernate, Java, Java EE, JPA, Spring, Spring Web Services.
 
-### Technical Appendix
-- **Name/ID Pairing**:
-  - `DefaultController` with endpoint `/` is a significant entry for zero-depth method management.
-  - Identified selectors with associated security risks: 
-    - Cross-Site Scripting ID: 8408
-    - Cross-Site Scripting ID: 8482
+## Affected Components
+- **JPA Entities:** Multiple entities requiring migration to Jakarta standards (Source: CAST MCP objects function).
+- **Spring Beans:** Significant number of beans requiring updates for compatibility with Spring Boot 3.2.3 (Source: CAST MCP objects function).
+- **Spring MVC:** Extensive MVC operations necessitate comprehensive updates for HTTP end-point management (Source: CAST MCP objects function).
 
-All findings from the CAST MCP structural discovery and quality insights.
+## Finding Confidence
+✅ Direct CAST results used for component identification and counts.
