@@ -1,31 +1,27 @@
-# Use a multi-stage build for optimizing Docker layers
-FROM eclipse-temurin:21-jre-alpine as builder
+# Use an official Maven image to build the application
+FROM maven:3.8.7-eclipse-temurin-21 AS build
 
-# Set the working directory
+# Set work directory
 WORKDIR /app
 
-# Copy the Maven project files to the container
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
+# Copy the pom.xml and whole project source to work directory
+COPY pom.xml .
 COPY src ./src
 
-# Make the Maven wrapper script executable
-RUN chmod +x mvnw
+# Package the application
+RUN mvn clean package -DskipTests
 
-# Package the application using Maven, skipping tests for faster build
-RUN ./mvnw clean package -DskipTests
-
-# Final image for execution
+# Use the smallest JRE image available with the target Java version
 FROM eclipse-temurin:21-jre-alpine
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Expose application port
+# Copy the packaged Jar file from the build image
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose the application port
 EXPOSE 8080
 
-# Copy the application jar file from the builder stage
-COPY --from=builder /app/target/*.jar app.jar
-
 # Run the application
-CMD ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
