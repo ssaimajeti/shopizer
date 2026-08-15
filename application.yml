@@ -1,0 +1,69 @@
+version: 2.1
+
+orbs:
+  # Using the Slack Orb version compatible with CircleCI for notification
+  slack: circleci/slack@4.5.0
+
+executors:
+  shopizer-ci:
+    docker:
+      - image: openjdk:11-jdk-slim # Using the OpenJDK Docker image directly for simplicity and flexibility with Java 11
+        auth:
+          username: shopizerecomm
+          password: $DOCKERHUB_PASSWORD  
+      
+working_directory: /opt/app # Changed working directory for consistency with Docker image best practices
+
+jobs:
+  build:
+    executor: shopizer-ci
+    steps:
+      - checkout
+      - run: echo "Building and testing Shopizer project"
+      - run:
+          name: Run Tests
+          command: |
+            set -x
+            ./mvnw clean test # Using Maven wrapper for build consistency
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./sm-shop
+
+  deploy:
+    machine: true
+    steps:
+       - attach_workspace:
+           at: .
+       - run:
+           name: List files in repository
+           command: ls -al
+           working_directory: .
+       - run:
+           name: List files in sm-shop
+           command: ls -al
+           working_directory: ./sm-shop
+       - run:
+           name: List files in sm-shop/target
+           command: ls -al
+           working_directory: ./sm-shop/target
+       - run:
+           name: Docker Login
+           command: |
+             echo $DOCKERHUB_PASSWORD | docker login -u shopizerecomm --password-stdin
+       - run:
+           name: Build Docker Image
+           command: |
+             (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.1)
+       - run:
+           name: Push Docker Image
+           command: |
+             docker push shopizerecomm/shopizer:3.2.1
+
+workflows:
+  build_and_deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
