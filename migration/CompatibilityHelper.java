@@ -1,120 +1,56 @@
-// MigrationHelper.java
-package com.shopizer.migration;
-
-import jakarta.persistence.*;
-import jakarta.validation.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.codec.ServerCodecConfigurer;
+import org.springframework.web.reactive.config.WebFluxConfigurer;
+
+@SpringBootApplication
+public class ShopApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ShopApplication.class, args);
+    }
+    
+    @Bean
+    public MethodValidationPostProcessor methodValidationPostProcessor() {
+        return new MethodValidationPostProcessor();
+    }
+
+    // TODO: Verify if any endpoints are affected by the transition from Spring MVC to Spring WebFlux.
+    // Manual intervention is required to check for reactive programming impacts.
+}
 
 @Configuration
-public class MigrationHelper {
+@EnableWebFlux
+class WebFluxConfig implements WebFluxConfigurer {
 
-    // TODO: Check manual configuration inputs for javax to jakarta migration.
-    
-    @Autowired
-    private EntityManager entityManager;
-
-    @Value("${old.config.value}")
-    private String oldConfigValue;
-    
-    // Transform function to migrate old configuration format to new format
-    public void migrateConfig(String oldConfig, String newConfig) {
-        // Example transformation logic
-        // Check current values and reassign them after validation or transformation
-        // TODO: Implement consistent mapping logic once new format is fully defined
+    @Override
+    public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
+        // Customize the codec settings if necessary, for WebFlux REST API compatibility.
     }
-
-    // Compatibility shim for using deprecated Spring Boot 2.5.x methods
-    @Deprecated
-    public ResponseEntity<Object> oldApiEndpoint(Request request) {
-        // Example response using new API structure
-        // TODO: Replace this implementation with an equivalent new method call
-        return ResponseEntity.status(HttpStatus.OK).body("This endpoint will be replaced.");
-    }
-    
 }
-```
 
-```xml
-<!-- pom.xml -->
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.shopizer</groupId>
-    <artifactId>shopizer</artifactId>
-    <packaging>pom</packaging>
-    <version>3.2.3</version>
+// Package renaming and deprecations
+// TODO: Replace org.springframework.boot.context packages and classes with their new equivalents if applicable.
+// The following is a potential example for such migrations, assuming hypothetical deprecations:
 
-    <name>shopizer</name>
-    <url>http://www.shopizer.com</url>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.3</version> <!-- Upgrade Spring Boot Version -->
-    </parent>
+// import org.springframework.boot.context.embedded.*;
+// import org.springframework.boot.web.servlet.server.*;
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version> <!-- Ensure Java 17 compatibility -->
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-    </properties>
+class MigrationHelper {
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-cache</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-data-jpa</artifactId> <!-- Updated for Jakarta namespace -->
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-</project>
-```
+    public static void handleDeprecations() {
+        // Handler for deprecated API usage to backward compatible code
+        // TODO: Check all deprecated usage for Java 11 functions or classes and replace them with Java 17 equivalents when required
+    }
 
-```xml
-<!-- sm-core-model/pom.xml -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>com.shopizer</groupId>
-        <artifactId>shopizer</artifactId>
-        <version>3.2.3</version>
-    </parent>
-
-    <artifactId>sm-core-model</artifactId>
-    <description>sm-core-modules is used for creating new external modules implementation deployed in maven.</description>
-    <name>sm-core-model</name>
-    <url>http://www.shopizer.com</url>
-
-    <properties>
-        <java.version>17</java.version> <!-- Ensure Java 17 compatibility -->
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-    </properties>
-
-    <dependencies>
-        <!-- Spring Data JPA with Jakarta namespace -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId> <!-- Updated to Jakarta namespace -->
-        </dependency>
-    </dependencies>
-</project>
+    public static void handleConfigChanges() {
+        // Transform old config format to the new one
+        // TODO: Inspect application.properties or application.yml for deprecated properties and adapt them
+    }
+    
+    // TODO: Add utility methods for other deprecated APIs replaced by Spring Boot 3.2.3 to ensure logic re-mapping
+}
