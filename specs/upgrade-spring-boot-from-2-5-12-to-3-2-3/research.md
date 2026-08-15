@@ -1,24 +1,13 @@
-## CAST Research Findings
+### Research & Compliance
 
-1. **Application Identification** ✅
-   - Target Application: Shopizer-3.2.5, flagged for absence of BCM.
-   - (Source: CAST MCP — `applications` : Shopizer-3.2.5)
+1. **Application Statistics:**
+   - Total Lines of Code (LOC): 91,162
+   - Total Elements: 16,572
+   - Total Interactions: 72,325
+   - Technologies: AWS SDK, Google Cloud Storage, Hibernate, Java, Java EE, JPA, Spring, etc. (Source: CAST MCP — [stats]).
 
-2. **Technology Stack and Elements** ✅
-   - Stats: 91,162 LOC, 16,572 element count, 72,325 interactions.
-   - Technologies include AWS SDK, Google Cloud Storage, Hibernate, Java, etc.
-   - (Source: CAST MCP — `stats` : Shopizer-3.2.5)
+2. **Framework Usage:**
+   - Identified various Spring MVC operations, indicating extensive use of Spring MVC in the application (Source: CAST MCP — [objects]).
 
-3. **Elemental Object Queries** ✅
-   - JPA Entities found: `Catalog (17945)`, `Customer (7189)` etc.
-   - Spring Beans present include: `appConfiguration (21295)`
-   - MVC Operations, e.g., `GET /api/v1/auth/products (12959)`
-   - (Source: CAST MCP - `objects`: Shopizer-3.2.5)
-
-4. **Deployment Configuration Absence** ❌
-   - No deployment configuration files found.
-   - (Source: CAST MCP — `objects`: query iscoped for deployment)
-   
-Queries were executed under CAST version constraint, and errors were retried where applicable. Absence of SCM integration or observed build tools implementations need manual confirmation.
-
-(Source: CAST MCP).
+3. **Build Tool:**
+   - No build manifest files (`pom.xml` or `build.gradle`) were identified in the analysis (Source: CAST MCP — [objects]).
