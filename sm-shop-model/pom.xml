@@ -131,7 +131,7 @@
             <configuration>
               <additionalparam>${javadoc.opts}</additionalparam>
               <doclint>none</doclint>
-              <source>11</source>
+              <source>17</source> <!-- Updated from 11 to 17 -->
     		  <detectJavaApiLink>false</detectJavaApiLink>
             </configuration>
           </execution>
