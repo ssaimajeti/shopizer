@@ -6,11 +6,11 @@ orbs:
 executors:
   shopizer-ci:
     docker:
-      - image: shopizerecomm/ci:java17  # Upgraded to Java 17 Docker image since Spring Boot 3 requires Java 17
+      - image: shopizerecomm/ci:java17 # Updated to use Java 17 compatible image as per Spring Boot 3.x requirements
         auth:
           username: shopizerecomm
-          password: $DOCKERHUB_PASSWORD  
-      
+          password: $DOCKERHUB_PASSWORD
+
 working_directory: /tmp
 
 jobs:
@@ -33,6 +33,8 @@ jobs:
     steps:
        - attach_workspace:
           at: .
+       # start proprietary DB using private Docker image
+       # with credentials stored in the UI
        - run:
            name: list files in repo
            command: ls -al
@@ -48,10 +50,10 @@ jobs:
        - run: |
            docker login -u shopizerecomm -p $DOCKERHUB_PASSWORD
        - run: |
-           (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.3)  # Updated version tag to 3.2.3
+           (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.3) # Updated version tag to 3.2.3
        - run:
            name: push image
-           command: docker push shopizerecomm/shopizer:3.2.3  # Updated version tag to 3.2.3
+           command: docker push shopizerecomm/shopizer:3.2.3 # Updated version tag to 3.2.3
 
 workflows:
   build_and_deploy:
