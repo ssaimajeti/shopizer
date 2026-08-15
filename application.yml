@@ -1,294 +1,67 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <modelVersion>4.0.0</modelVersion>
+version: 2.1
 
-    <groupId>com.shopizer</groupId>
-    <artifactId>shopizer</artifactId>
-    <version>3.2.3</version>
-    <packaging>pom</packaging>
+orbs:
+  # Including the Slack orb for notifications in our CI/CD pipelines
+  slack: circleci/slack@3.4.2
 
-    <name>shopizer</name>
-    <url>http://www.shopizer.com</url>
+executors:
+  # Executor definition for building and deploying Shopizer in CircleCI using a Java environment
+  shopizer-ci:
+    docker:
+      - image: shopizerecomm/ci:java17 # Updated Java version to 17 to support Spring Boot 3.2.3
+        auth:
+          username: shopizerecomm
+          password: $DOCKERHUB_PASSWORD
+    working_directory: /tmp
 
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
+jobs:
+  build:
+    executor: shopizer-ci
+    steps:
+      - checkout
+      - run: echo "shopizer build and test (1)"
+      - run:
+          name: Run shell script
+          command: |
+            set -x
+            /home/shopizer/tools/shopizer.sh tests
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./sm-shop
+  deploy:
+    machine: true
+    steps:
+       - attach_workspace:
+          at: .
+       # start proprietary DB using private Docker image
+       # with credentials stored in the UI
+       - run:
+           name: List files in repo
+           command: ls -al
+           working_directory: .
+       - run:
+           name: List files in shop
+           command: ls -al
+           working_directory: ./sm-shop
+       - run:
+           name: List files in shop/target
+           command: ls -al
+           working_directory: ./sm-shop/target
+       - run: |
+           docker login -u shopizerecomm -p $DOCKERHUB_PASSWORD
+       - run: |
+           (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.3)
+           # Updated Docker tag version to align with new Shopizer version
+       - run:
+           name: Push image
+           command: docker push shopizerecomm/shopizer:3.2.3
+           # Updated Docker tag version to align with new Shopizer version
 
-    <!-- Updated Spring Boot version to 3.2.3 -->
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.3</version>
-    </parent>
-
-    <modules>
-        <module>sm-core-model</module>
-        <module>sm-core-modules</module>
-        <module>sm-core</module>
-        <module>sm-shop-model</module>
-        <module>sm-shop</module>
-    </modules>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- java version -->
-        <java.version>17</java.version> <!-- Changed to Java 17 as required by Spring Boot 3.x -->
-
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-
-        <shopizer.search.version>2.11.1</shopizer.search.version>
-        <shopizer-canadapost.version>2.15.0</shopizer-canadapost.version>
-
-        <!-- Updating Elasticsearch version to a supported version for Spring Boot 3.x -->
-        <elasticsearch.version>7.16.2</elasticsearch.version>
-
-        <!-- Updated Guava version -->
-        <guava.version>31.0.1-jre</guava.version> <!-- Compatible with newer Java versions -->
-        <commons-lang.version>3.12.0</commons-lang.version> <!-- Updated to latest at the time -->
-        <commons-io.version>2.8.0</commons-io.version>
-        <commons-collections4.version>4.4</commons-collections4.version>
-        <commons-validator.version>1.7</commons-validator.version>
-        <commons-fileupload>1.4</commons-fileupload>
-        <org.mapstruct.version>1.5.3.Final</org.mapstruct.version> <!-- Latest stable version -->
-
-        <org.apache.httpcomponent.version>4.5.13</org.apache.httpcomponent.version>
-        <javax.inject.version>1</javax.inject.version>
-        <javax.el.version>3.0.1-b06</javax.el.version>
-        <javax.servlet-api-version>4.0.1</javax.servlet-api-version>
-        <javax.annotation>1.3.2</javax.annotation>
-        <infinispan.version>12.1.7.Final</infinispan.version> <!-- Updated for compatibility -->
-        <infinispan.tree.version>9.4.18.Final</infinispan.tree.version> <!-- No change needed -->
-        <mysql-jdbc-version>8.0.26</mysql-jdbc-version>
-        <oracle.version>18.3.0.0</oracle.version>
-        <postgresql.version>42.2.23</postgresql.version>
-        <simple-json-version>1.1.1</simple-json-version>
-        <jackson-version-databind>2.14.0</jackson-version-databind> <!-- Latest for security enhancements -->
-        <jackson-version>2.14.0</jackson-version>
-        <geoip2.version>2.14.1</geoip2.version>
-        <drools.version>7.63.0.Final</drools.version>
-        <google-client-maps-services-version>0.9.1</google-client-maps-services-version>
-        <jwt.version>0.11.2</jwt.version> <!-- Upgrading to a more recent version -->
-
-        <!-- Api documentation version -->
-        <swagger.version>3.0.0</swagger.version> <!-- Upgrade to Swagger 3 -->
-        
-        <!-- Updated jacoco coverage settings -->
-        <coverage.lines>.30</coverage.lines>
-        <coverage.branches>.37</coverage.branches>
-    </properties>
-
-    <!-- Dependency Management Section -->
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-cache</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>com.shopizer</groupId>
-                <artifactId>sm-core</artifactId>
-                <version>3.2.3</version>
-            </dependency>
-            <dependency>
-                <groupId>com.shopizer</groupId>
-                <artifactId>sm-core-model</artifactId>
-                <version>3.2.3</version>
-            </dependency>
-            <dependency>
-                <groupId>com.shopizer</groupId>
-                <artifactId>sm-core-modules</artifactId>
-                <version>3.2.3</version>
-            </dependency>
-            <dependency>
-                <groupId>com.shopizer</groupId>
-                <artifactId>sm-shop-model</artifactId>
-                <version>3.2.3</version>
-            </dependency>
-
-            <!-- Updated dependencies, removed Aspose dependency issues cost -->
-            
-            <dependency>
-                <groupId>javax.inject</groupId>
-                <artifactId>javax.inject</artifactId>
-                <version>${javax.inject.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mapstruct</groupId>
-                <artifactId>mapstruct</artifactId>
-                <version>${org.mapstruct.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt</artifactId>
-                <version>${jwt.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson-version-databind}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson-version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson-version}</version>
-            </dependency>
-
-            <!-- javax mail dependency -->
-            <dependency>
-                <groupId>javax.mail</groupId>
-                <artifactId>mail</artifactId>
-                <version>1.4.7</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.googlecode.json-simple</groupId>
-                <artifactId>json-simple</artifactId>
-                <version>${simple-json-version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>${mysql-jdbc-version}</version>
-            </dependency>
-
-            <!-- Updated for Oracle and PostgreSQL compatibility -->
-            
-            <dependency>
-                <groupId>com.google.maps</groupId>
-                <artifactId>google-maps-services</artifactId>
-                <version>${google-client-maps-services-version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.kie</groupId>
-                <artifactId>kie-ci</artifactId>
-                <version>${drools.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.drools</groupId>
-                <artifactId>drools-decisiontables</artifactId>
-                <version>${drools.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.drools</groupId>
-                <artifactId>drools-core</artifactId>
-                <version>${drools.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.drools</groupId>
-                <artifactId>drools-compiler</artifactId>
-                <version>${drools.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.kie</groupId>
-                <artifactId>kie-spring</artifactId>
-                <version>${drools.version}</version>
-            </dependency>
-
-            <!-- Infinispan -->
-            <dependency>
-                <groupId>org.infinispan</groupId>
-                <artifactId>infinispan-core</artifactId>
-                <version>${infinispan.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.infinispan</groupId>
-                <artifactId>infinispan-cachestore-jdbc</artifactId>
-                <version>${infinispan.tree.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.infinispan</groupId>
-                <artifactId>infinispan-tree</artifactId>
-                <version>${infinispan.version}</version>
-            </dependency>
-
-            <!-- Payment dependencies -->
-
-            <!-- Updated Paypal, Stripe, and Braintree versions -->
-
-            <dependency>
-                <groupId>com.paypal.sdk</groupId>
-                <artifactId>merchantsdk</artifactId>
-                <version>2.15.109</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.stripe</groupId>
-                <artifactId>stripe-java</artifactId>
-                <version>20.101.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.braintreepayments.gateway</groupId>
-                <artifactId>braintree-java</artifactId>
-                <version>3.15.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.maxmind.geoip2</groupId>
-                <artifactId>geoip2</artifactId>
-                <version>${geoip2.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-s3</artifactId>
-                <version>1.12.152</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-ses</artifactId>
-                <version>1.12.152</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.google.cloud</groupId>
-                <artifactId>google-cloud-storage</artifactId>
-                <version>2.1.5</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
-</project>
+workflows:
+  build_and_deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
