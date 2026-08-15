@@ -1,27 +1,36 @@
-# Use an official Maven image to build the application
-FROM maven:3.8.7-eclipse-temurin-21 AS build
+# Use the OpenJDK 21 as the base image for Spring Boot 3.2.3
+FROM eclipse-temurin:21-jre-alpine as base
 
-# Set work directory
+# Set environment variables for Java options
+ENV JAVA_OPTS="-Xms512m -Xmx1024m"
+
+# Set the working directory
 WORKDIR /app
 
-# Copy the pom.xml and whole project source to work directory
-COPY pom.xml .
-COPY src ./src
+# Separate builder stage
+FROM maven:3.9.4-eclipse-temurin-21 as builder
 
-# Package the application
+# Set the working directory
+WORKDIR /build
+
+# Copy the pom.xml and download dependencies
+COPY pom.xml /build
+RUN mvn dependency:resolve
+
+# Copy the source code
+COPY src /build/src
+
+# Compile the application
 RUN mvn clean package -DskipTests
 
-# Use the smallest JRE image available with the target Java version
-FROM eclipse-temurin:21-jre-alpine
+# Create a new stage from the base image
+FROM base as final
 
-# Set working directory
-WORKDIR /app
-
-# Copy the packaged Jar file from the build image
-COPY --from=build /app/target/*.jar app.jar
+# Copy the JAR file from the builder stage
+COPY --from=builder /build/target/*.jar /app/app.jar
 
 # Expose the application port
 EXPOSE 8080
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# Execute the application
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
