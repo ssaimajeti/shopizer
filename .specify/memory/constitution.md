@@ -1,5 +1,8 @@
-### Quality Standards
+## Quality Standards and Design Principles
 
-- Follow standard Java naming conventions and Spring coding guidelines.
-- Ensure at least 80% test coverage with CI/CD enforced unit and integration tests.
-- Aim for backward compatibility and minimized impact on current database schemas and entity relationships.
+- **Coding Conventions**: Adhere to Java and Spring best practices, leveraging consistent style and structure throughout the application.
+- **Test Coverage**: Achieve greater than 80% test coverage across the project's codebase, focusing on critical areas impacted by the upgrade.
+- **Backward Compatibility**: Ensure solution maintains compatibility with existing dependent systems.
+- **Security Best Practices**: Implement robust security measures, focusing particularly on input validation and output encoding to prevent XSS vulnerabilities.
+
+(The standards are influenced by known best standards in Java development and Addressing security vulnerabilities noted in CAST MCP findings)
