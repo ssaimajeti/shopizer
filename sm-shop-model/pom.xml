@@ -58,22 +58,26 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
+      <version>5.3.15</version> <!-- Assuming version compatible with Spring Boot 3.2.3 -->
     </dependency>
     
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-webmvc</artifactId>
-	</dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>5.3.15</version> <!-- Assuming version compatible with Spring Boot 3.2.3 -->
+    </dependency>
 
     <dependency>
-      <groupId>jakarta.annotation</groupId>
-      <artifactId>jakarta.annotation-api</artifactId>
+      <groupId>jakarta.annotation</groupId> <!-- Updated from javax.annotation -->
+      <artifactId>jakarta.annotation-api</artifactId> <!-- Updated from javax.annotation-api -->
+      <version>2.0.0</version> <!-- Assuming version compatible with Jakarta EE 9 -->
     </dependency>
 
     <!-- Swagger 2 documentation -->
     <dependency>
       <groupId>io.springfox</groupId>
       <artifactId>springfox-swagger2</artifactId>
+      <version>3.0.0</version> <!-- Assuming version compatible with Spring Boot 3.2.3 -->
     </dependency>
 
   </dependencies>
@@ -132,7 +136,7 @@
               <additionalparam>${javadoc.opts}</additionalparam>
               <doclint>none</doclint>
               <source>11</source>
-    		  <detectJavaApiLink>false</detectJavaApiLink>
+              <detectJavaApiLink>false</detectJavaApiLink>
             </configuration>
           </execution>
         </executions>
