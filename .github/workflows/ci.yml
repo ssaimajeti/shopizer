@@ -1,71 +1,97 @@
-name: Java CI
+version: 2.1
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+orbs:
+  slack: circleci/slack@3.4.2
+
+executors:
+  shopizer-ci:
+    docker:
+      - image: shopizerecomm/ci:java17 # Updated for Java 17 compatibility with Spring Boot 3.2.3
+        auth:
+          username: shopizerecomm
+          password: $DOCKERHUB_PASSWORD  
+      
+working_directory: /tmp
 
 jobs:
-  setup:
-    name: Set up JDK
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Java
-        uses: actions/setup-java@v2
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-
   lint:
-    name: Checkstyle
-    runs-on: ubuntu-latest
+    executor: shopizer-ci
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-      - name: Lint with Checkstyle
-        run: mvn checkstyle:check
-
+      - checkout
+      - run:
+          name: Lint Code
+          command: mvnw spotless:check
+          
   test:
-    name: Unit Tests
-    runs-on: ubuntu-latest
+    executor: shopizer-ci
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-      - name: Unit Test
-        run: mvn test
+      - checkout
+      - run:
+          name: Run Unit Tests
+          command: mvnw test
 
   build:
-    name: Build
-    runs-on: ubuntu-latest
+    executor: shopizer-ci
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-      - name: Build with Maven
-        run: mvn package
+      - checkout
+      - run:
+          name: Build Package
+          command: mvnw clean package
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./sm-shop
 
   sast:
-    name: SAST
-    runs-on: ubuntu-latest
+    executor: shopizer-ci
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-      - name: Static Application Security Testing
-        run: echo "TODO: Integrate a SAST tool like OWASP Dependency Check"
+      - checkout
+      - run:
+          name: Security Scan
+          command: mvnw dependency-check:aggregate
+      
+  deploy:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: list files in repo
+          command: ls -al
+          working_directory: .
+      - run:
+          name: list files in shop
+          command: ls -al
+          working_directory: ./sm-shop
+      - run: 
+          name: login to docker
+          command: docker login -u shopizerecomm -p $DOCKERHUB_PASSWORD
+      - run: 
+          command: |
+            (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.3)
+      - run:
+          name: push image
+          command: docker push shopizerecomm/shopizer:3.2.3
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - lint
+      - test
+      - build:
+          requires:
+            - lint
+            - test
+      - sast:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
