@@ -1,4 +1,4 @@
-# Java Maven CircleCI 2.0 configuration file
+# Java Maven CircleCI 2.1 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
@@ -11,7 +11,7 @@ orbs:
 executors:
   shopizer-ci:
     docker:
-      - image: shopizerecomm/ci:java11
+      - image: shopizerecomm/ci:java8
         auth:
           username: shopizerecomm
           password: $DOCKERHUB_PASSWORD  
