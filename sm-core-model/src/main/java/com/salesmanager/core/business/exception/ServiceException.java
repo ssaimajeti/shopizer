@@ -38,7 +38,7 @@ public class ServiceException extends Exception {
 	}
 
 	public ServiceException(Throwable cause) {
-		super(cause.getMessage(), cause);
+		super(cause);
 	}
 	
 	public ServiceException(int exceptionType) {
