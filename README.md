@@ -62,8 +62,8 @@ docker run \
 
 ```
 docker run \
- -e "APP_MERCHANT=DEFAULT"
- -e "APP_BASE_URL=http://localhost:8080"
+ -e "APP_MERCHANT=DEFAULT" \
+ -e "APP_BASE_URL=http://localhost:8080" \
  -p 80:80 shopizerecomm/shopizer-shop-reactjs
 ```
 
@@ -95,9 +95,9 @@ To build the application:
 From the command line:
 
 	$ cd shopizer
-	$ mvnw clean install
+	$ ./mvnw clean install
 	$ cd sm-shop
-	$ mvnw spring-boot:run
+	$ ./mvnw spring-boot:run
 
 2. Shopizer admin
 
@@ -111,7 +111,7 @@ Form compiling and running Shopizer admin consult the repo README file
 ### Access the application:
 -------------------
 
-Access the headless web application at: http://localhost:8080/swagger-ui.html
+Access the headless web application at: http://localhost:8080/swagger-ui/index.html
 
 
 The instructions above will let you run the application with default settings and configurations.
@@ -133,7 +133,7 @@ More information is available on shopizer web site here <http://www.shopizer.com
 -------------------
 
 If you have interest in giving feedback or for participating to Shopizer project in any way
-Feel to use the contact form <http://www.shopizer.com/contact.html> and share your email address
+Feel free to use the contact form <http://www.shopizer.com/contact.html> and share your email address
 so we can send an invite to our Slack channel
 
 ### How to Contribute:
@@ -147,7 +147,7 @@ Clone from fork repository
 
 Build application according to steps provided above
 
-Synchronize lastest version with the upstream
+Synchronize latest version with the upstream
 -------------------
 
        $ git remote add upstream https://github.com/yourusername/shopizer.git
@@ -163,5 +163,3 @@ Push your changes to Shopizer
 -------------------
 
 Please open a PR (pull request) in order to have your changes merged to the upstream
-
-

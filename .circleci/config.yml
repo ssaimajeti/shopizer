@@ -1,7 +1,6 @@
-# Java Maven CircleCI 2.0 configuration file
+# Java Maven CircleCI configuration file for Spring Boot 3.2.1
 #
-# Check https://circleci.com/docs/2.0/language-java/ for more details
-#
+# Check https://circleci.com/docs/ for more details
 
 version: 2.1
 

@@ -4,8 +4,8 @@
 package com.salesmanager.core.business.exception;
 
 /**
- * @author Umesh A
- *
+ * Custom exception class for conversion errors.
+ * Author: Umesh A
  */
 public class ConversionException extends Exception
 {
@@ -25,7 +25,4 @@ public class ConversionException extends Exception
   {
       super(t);
   }
-  
-  
-
 }
