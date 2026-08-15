@@ -4,7 +4,7 @@
 package com.salesmanager.core.business.exception;
 
 /**
- * @author Umesh A
+ * Author: Umesh A
  *
  */
 public class ConversionException extends Exception

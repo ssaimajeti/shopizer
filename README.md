@@ -150,7 +150,7 @@ Build application according to steps provided above
 Synchronize lastest version with the upstream
 -------------------
 
-       $ git remote add upstream https://github.com/yourusername/shopizer.git
+       $ git remote add upstream https://github.com/shopizer-ecommerce/shopizer.git
 	  $ git pull upstream 3.2.3
 
 Create new branch in your repository
@@ -163,5 +163,3 @@ Push your changes to Shopizer
 -------------------
 
 Please open a PR (pull request) in order to have your changes merged to the upstream
-
-
