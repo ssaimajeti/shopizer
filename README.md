@@ -13,7 +13,7 @@
 
 Java open source e-commerce software
 
-Headless commerce and REST API for ecommerce
+Headless commerce and Rest api for ecommerce
 
 - Catalog
 - Shopping cart
@@ -27,7 +27,9 @@ Shopizer Headless commerce consists of the following components:
 
 - Spring Boot Java / Spring Boot backend
 - Angular administration web application
-- React JS front end application
+- React JS frontend application
+
+
 
 See the demo:
 -------------------
@@ -80,7 +82,7 @@ Clone the repository:
 	 
 	 $ git clone git://github.com/shopizer-ecommerce/shopizer-shop-reactjs.git
 
-If this is your first time using GitHub, review http://help.github.com to learn the basics.
+If this is your first time using Github, review http://help.github.com to learn the basics.
 
 You can also download the zip file containing the code from https://github.com/shopizer-ecommerce for each of the projects above
 
@@ -88,6 +90,7 @@ To build the application:
 -------------------
 
 1. Shopizer backend
+
 
 From the command line:
 
@@ -98,35 +101,38 @@ From the command line:
 
 2. Shopizer admin
 
-For compiling and running Shopizer admin consult the repo README file
+Form compiling and running Shopizer admin consult the repo README file
 
 3. Shop sample site
 
-For compiling and running Shopizer admin consult the repo README file
+Form compiling and running Shopizer admin consult the repo README file
+
 
 ### Access the application:
 -------------------
 
-Access the headless web application at: http://localhost:8080/swagger-ui/index.html
+Access the headless web application at: http://localhost:8080/swagger-ui.html
+
 
 The instructions above will let you run the application with default settings and configurations.
 Please read the instructions on how to connect to MySQL, configure an email server and configure other subsystems
+
 
 ### Documentation:
 -------------------
 
 Documentation available <http://documentation.shopizer.com>
 
-API documentation <https://app.swaggerhub.com/apis-docs/shopizer/shopizer-rest-api/3.0.1#/>
+Api documentation <https://app.swaggerhub.com/apis-docs/shopizer/shopizer-rest-api/3.0.1#/>
 
-ChatOps <https://shopizer.slack.com> - Join our Slack channel https://shopizer-slackin.herokuapp.com/
+ChatOps <https://shopizer.slack.com>  - Join our Slack channel https://shopizer-slackin.herokuapp.com/
 
-More information is available on the Shopizer website here <http://www.shopizer.com>
+More information is available on Shopizer website here <http://www.shopizer.com>
 
 ### Participation:
 -------------------
 
-If you have interest in giving feedback or for participating in the Shopizer project in any way
+If you have an interest in giving feedback or for participating in the Shopizer project in any way
 Feel free to use the contact form <http://www.shopizer.com/contact.html> and share your email address
 so we can send an invite to our Slack channel
 
@@ -144,13 +150,14 @@ Build application according to steps provided above
 Synchronize latest version with the upstream
 -------------------
 
-       $ git remote add upstream https://github.com/yourusername/shopizer.git
+       $ git remote add upstream https://github.com/shopizer-ecommerce/shopizer.git
 	   $ git pull upstream 3.2.3
 
 Create new branch in your repository
 -------------------
 
 	   $ git checkout -b branch-name
+
 
 Push your changes to Shopizer
 -------------------
