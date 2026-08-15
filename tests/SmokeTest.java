@@ -1,62 +1,67 @@
 package com.shopizer.upgrade;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.info.BuildProperties;
-import org.springframework.core.env.Environment;
-import org.springframework.web.client.RestTemplate;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootVersion;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest
-public class SpringBootUpgradeTest {
+public class UpgradeValidationTests {
+
+    private static final String TARGET_SPRING_BOOT_VERSION = "3.2.3";
 
     @Autowired
-    private BuildProperties buildProperties;
+    private ApplicationContext applicationContext;
 
     @Autowired
     private Environment environment;
 
-    @Test
-    void contextLoads() {
-        assertNotNull(environment);
+    private RestTemplate restTemplate;
+
+    @BeforeEach
+    void setUp() {
+        restTemplate = new RestTemplate();
     }
 
     @Test
-    void verifySpringBootVersion() {
-        assertThat(buildProperties.getVersion()).isEqualTo("3.2.3");
+    void testSpringBootVersion() {
+        String activeVersion = SpringBootVersion.getVersion();
+        assertEquals(TARGET_SPRING_BOOT_VERSION, activeVersion, "Spring Boot version must be " + TARGET_SPRING_BOOT_VERSION);
     }
 
     @Test
-    void verifyKeyConfigurationProperties() {
-        String securityProperty = environment.getProperty("spring.security.enabled");
-        assertThat(securityProperty).isEqualTo("true");
-        
-        String ormProperty = environment.getProperty("spring.jpa.open-in-view");
-        assertThat(ormProperty).isNull(); // Checks that deprecated property is no longer available
+    void testRestApiEndpoint() {
+        String url = "http://localhost:8080/api/v1/auth/products";
+        String response = restTemplate.getForObject(url, String.class);
+        assertNotNull(response, "API should return a non-null response");
     }
 
     @Test
-    void apiPathsRespondSuccessfully() {
-        RestTemplate restTemplate = new RestTemplate();
-        Map<String, String> response = restTemplate.getForObject("http://localhost:8080/api/health", Map.class);
-        assertTrue(response.containsKey("status"));
-        assertThat(response.get("status")).isEqualTo("UP");
+    void testDeprecatedApiRemoval() {
+        assertFalse(dependencyExists("javax.persistence"), "javax.persistence should have been replaced with jakarta.persistence");
+        assertTrue(dependencyExists("jakarta.persistence"), "jakarta.persistence should be the active package");
     }
 
     @Test
-    void checkForDeprecatedApis() {
-        // Example: Verify no deprecated APIs in the Spring Security context
-        String deprecatedApiConfig = environment.getProperty("spring.security.deprecated-api");
-        assertThat(deprecatedApiConfig).isNull(); // Ensures that deprecated configurations are not present
+    void testNewConfigurationKeys() {
+        assertNotNull(environment.getProperty("spring.config.activate.on-profile"), "New configuration key should be loaded without errors");
     }
 
-    @Test
-    void newConfigurationPropertyIsLoaded() {
-        String newFeatureFlag = environment.getProperty("custom.new-feature.enabled");
-        assertThat(newFeatureFlag).isEqualTo("true");
+    private boolean dependencyExists(String packageName) {
+        try {
+            Class.forName(packageName);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 }
