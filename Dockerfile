@@ -1,18 +1,22 @@
-FROM eclipse-temurin:21-jre-alpine AS build
-WORKDIR /app
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
-COPY sm-shop ./sm-shop
-COPY sm-core ./sm-core
-COPY sm-core-model ./sm-core-model
-COPY sm-core-modules ./sm-core-modules
-COPY sm-shop-model ./sm-shop-model
-RUN chmod +x mvnw
-RUN ./mvnw -f ./pom.xml clean package -DskipTests
+# Multi-stage build for Spring Boot application
 
+# Stage 1: Build the Java app using Maven
+FROM maven:3.8-openjdk-21-slim AS build
+WORKDIR /app
+COPY . .
+
+# Ensure access to necessary resources and build the application
+RUN mvn -B clean install -DskipTests
+
+# Stage 2: Create the runtime image with the JVM
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/sm-shop/target/*.jar app.jar
+
+# Expose application port
 EXPOSE 8080
-ENV JAVA_OPTS=""
-CMD ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+
+# Copy the jar file from the build stage
+COPY --from=build /app/target/shopizer.jar /app/shopizer.jar
+
+# Run the application
+CMD ["java", "-jar", "/app/shopizer.jar"]
