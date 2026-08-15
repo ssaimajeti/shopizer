@@ -1,0 +1,41 @@
+version: 2.1
+
+executors:
+  java-executor:
+    docker:
+      - image: openjdk:11-jdk
+    working_directory: /app
+
+jobs:
+  lint:
+    executor: java-executor
+    steps:
+      - checkout
+      - run: ./mvnw checkstyle:check
+
+  test:
+    executor: java-executor
+    steps:
+      - checkout
+      - run: ./mvnw test
+
+  build:
+    executor: java-executor
+    steps:
+      - checkout
+      - run: ./mvnw clean package
+
+  security_scan:
+    executor: java-executor
+    steps:
+      - checkout
+      - run: ./mvnw verify -DskipTests -Psecurity
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - lint
+      - test
+      - build
+      - security_scan
