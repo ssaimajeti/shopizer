@@ -1,9 +1,16 @@
-## Quality Standards / Design Principles
+## Quality Standards and Design Principles for Spring Boot 3.2.3 Upgrade
 
-1. **Code Conventions**: Maintain consistent code styling and practices across the codebase. All `public` APIs should use Spring framework validated methods for request handling.
+1. **Code Conventions**
+   - Follow consistent Java coding standards across all modified components.
+   - Ensure naming conventions adhere to project guidelines especially in security segments.
 
-2. **Test Coverage**: Achieve at least 80% test coverage for updated components, ensuring all major functionalities are adequately validated with unit and integration tests.
+2. **Test Coverage**
+   - Achieve at least 80% code coverage for any newly added/modified code.
+   - Perform both unit and integration testing for critical modules.
 
-3. **Backward Compatibility**: APIs should remain backward compatible wherever feasible.
+3. **Backward Compatibility**
+   - Ensure the system supports previous RESTful contract obligations and does not break client integrations.
 
-4. **Security**: Follow secure coding practices to mitigate vulnerabilities such as cross-site scripting identified, especially concerning user input reflection.
+4. **Compliance Check**: Verify and document compliance with business capability model requirements — even if BCN scope is listed as absent.
+
+(Source: Requirement Document, ⚠️ Proposed test coverage target)
