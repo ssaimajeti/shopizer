@@ -1,22 +1,31 @@
-# Multi-stage build for Spring Boot application
+# Use a multi-stage build for optimizing Docker layers
+FROM eclipse-temurin:21-jre-alpine as builder
 
-# Stage 1: Build the Java app using Maven
-FROM maven:3.8-openjdk-21-slim AS build
+# Set the working directory
 WORKDIR /app
-COPY . .
 
-# Ensure access to necessary resources and build the application
-RUN mvn -B clean install -DskipTests
+# Copy the Maven project files to the container
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+COPY src ./src
 
-# Stage 2: Create the runtime image with the JVM
+# Make the Maven wrapper script executable
+RUN chmod +x mvnw
+
+# Package the application using Maven, skipping tests for faster build
+RUN ./mvnw clean package -DskipTests
+
+# Final image for execution
 FROM eclipse-temurin:21-jre-alpine
+
+# Set the working directory
 WORKDIR /app
 
 # Expose application port
 EXPOSE 8080
 
-# Copy the jar file from the build stage
-COPY --from=build /app/target/shopizer.jar /app/shopizer.jar
+# Copy the application jar file from the builder stage
+COPY --from=builder /app/target/*.jar app.jar
 
 # Run the application
-CMD ["java", "-jar", "/app/shopizer.jar"]
+CMD ["java", "-jar", "app.jar"]
