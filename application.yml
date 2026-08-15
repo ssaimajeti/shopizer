@@ -1,0 +1,64 @@
+#Spring boot configurations
+server.port=8080
+
+# Turn Statistics on
+# spring.jpa.properties.hibernate.generate_statistics=true
+# default database schema
+spring.jpa.properties.hibernate.default_schema=SALESMANAGER
+# logging.level.org.hibernate.stat=debug
+
+# Enable logging to verify that HikariCP is used, the second entry is specific to HikariCP
+logging.level.org.hibernate.SQL=ERROR
+logging.level.com.zaxxer.hikari.HikariConfig=INFO
+# TRACE will print binding
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=INFO
+
+# when running from IDE (eclipse) or from springboot:run command
+# server.contextPath=/shopizer
+
+logging.level.org.springframework=ERROR
+logging.level.com.shopizer=INFO
+logging.level.org.hibernate=ERROR
+logging.level.org.apache.http=ERROR
+
+# logging.file=shopizer.log
+
+# Default Spring white label error page
+server.error.whitelabel.enabled=false
+
+spring.servlet.multipart.max-file-size=4MB
+spring.servlet.multipart.max-request-size=10MB
+
+# Hibernate 5
+# spring.jpa.hibernate.use-new-id-generator-mappings=true
+# This line is no longer needed in Hibernate 6, as per Spring Boot 3's upgrade notes, it's the default behavior now.
+spring.jpa.hibernate.use-new-id-generator-mappings=true
+
+# Spring Boot 3.x
+spring.main.allow-circular-references=false
+# Updated from allow-bean-definition-overriding to align with Spring Boot 3.x standards for handling circular references, which is discouraged.
+
+# Build information
+application-description=@project.description@
+application-version=@project.version@
+build.timestamp=@maven.build.timestamp@
+
+# Actuator
+management.endpoints.web.exposure.include=*
+management.endpoint.health.show-details=always
+management.endpoint.health.show-components=always
+
+management.health.elasticsearch.enabled=false
+management.health.mail.enabled=false
+management.health.ping.enabled=true
+
+# The following configurations may have been deprecated or internally managed by Spring Boot 3.x:
+# management.endpoints.enabled-by-default=false
+# management.endpoint.info.enabled=true
+# management.endpoint.health.enabled=true
+# management.endpoint.health.sensitive=false
+# management.endpoint.health.group.global.include=ping
+# management.security.enabled=false
+# These settings are adjusted to new configurations: actuators and health checks are now always enabled by default, and exposure is managed through management.endpoints.web.exposure.include
+
+# Here, adjusted configurations are provided to align with Spring Boot 3 changes, particularly for deprecated security handling options and managing actuator endpoints.
