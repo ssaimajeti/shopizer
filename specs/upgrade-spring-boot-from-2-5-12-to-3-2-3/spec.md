@@ -1,39 +1,32 @@
-## Specification for Spring Boot Upgrade in Shopizer-3.2.5
+## Upgrade Spring Boot from 2.5.12 to 3.2.3 for Shopizer-3.2.5
 
 ### Current State
-- **Spring Boot Version:** 2.5.12
-- **Target Spring Boot Version:** 3.2.3
-- **Application Name:** Shopizer-3.2.5
-- **Lines of Code (LOC):** 91,162
-- **Element Types:** Including Java Classes, Spring Beans, JPA Entities, and various Spring MVC operations
-- **Technologies:** AWS SDK S3 for Java, Google Cloud Storage for Java, Hibernate, Java, Java EE, JPA, Spring, and others
+The application Shopizer-3.2.5 is utilizing several Java and Spring components and has a substantial amount of Java Persistence API (JPA) entities, Spring Beans, and Spring MVC components.
+- **Element Types:** JPA Entity, Spring Bean, Spring MVC Operations (Get, Post, Put, Delete)
+- **Principal Technologies:** AWS SDK for Java, Google Cloud Storage for Java, Hibernate, Java, Java Server Pages (JSP), Java EE, JPA, Spring, Spring Web Services
+- **LOC:** 91,162
+- **Element Count:** 16,572
 
 ### Proposed Changes
-1. **Upgrade Spring Boot Version:** From 2.5.12 to 3.2.3
-2. **Namespace Migration:** From `javax.*` to `jakarta.*`
-3. **Examine & Update Build Files:** Find and modify `pom.xml` or `build.gradle` files accordingly for Spring Boot 3.2.3.
+- Update Spring Boot version from 2.5.12 to 3.2.3
+- All `javax.*` imports need to be changed to `jakarta.*` for JPA entities
+- Verify and update build configurations to align with Spring 3.x.x changes
 
 ### Breaking Changes
-| Category | Description | Impact (File Count) |
-| -------- | ----------- | ------------------- |
-| Namespace | Migrate imports from `javax` to `jakarta` | Impact under evaluation ⚠️ |
-| Build Tool | Update configurations as needed for Spring 3+ compatibility | Possible configurations adjustments needed | 
+- **Namespace Migration:** All Javax imports (e.g. `javax.persistence`, `javax.validation`) to Jakarta counterparts. A thorough check needs to be done in the following object types:
+  - **JPA Entity samples:** `Catalog (17945)`, `Category (17943)`, `Customer (7189)`
+  - **Spring Bean samples:** `apiCustomerAuthenticationEntryPoint (21158)`, `appConfiguration (21295)`
+  - **Spring MVC samples:** `GET /api/v1/auth/products (12959)`, `POST api/v1/cart (10491)`
+- **Java Version Alignment:** Ensure compatibility with Java 17, if not already done.
+- **Check for binary incompatibilities** specific to Spring Boot 2.5.x → 3.x
 
 ### Acceptance Criteria
-- All impacted files are updated to use `jakarta.*` where applicable
-- All dependencies updated for compatibility with Spring Boot 3.2.3
-- Application builds and deploys successfully without errors
+- Complete migration of Spring Boot to version 3.2.3
+- Full functional parity with existing behavior and no deprecated API warnings
+- Successful manual validation and tests coverage post-migration
+- Documentation of any manual code changes undertaken
 
-## Appendix
-(Specs derived from CAST MCP and CAST Imaging results not directly available due to tool limitations)
+### Compliance
+- Non-provision of BCM scope — noted as a standing compliance gap.
 
---- 
-
-(Source: CAST MCP - Application Discovery):
-- "Shopizer-3.2.5" is confirmed as available | Dates and items mentioned, e.g., LOC, Elements are derived from application-level stats retrieved via CAST Imaging
-- No `pom.xml` or `build.gradle` detected; recommend manual validation via project search or documentation
-
-(Source: Requirement Document)
-- Upgrade Spring Boot from 2.5.12 to 3.2.3 | Text as provided
-
-⚠️ Please note: Namespace migration requires external examination due to semantic search tool error. Retry semantic indexing and analysis.
+(Source: Requirement Document and CAST MCP).
