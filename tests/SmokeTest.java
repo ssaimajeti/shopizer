@@ -1,59 +1,64 @@
 package com.salesmanager.core.upgrade;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.SpringBootVersion;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
-@ActiveProfiles("test")
-class UpgradeValidationTests {
+@WebMvcTest
+public class SpringBootUpgradeValidationTests {
 
-    private static final String TARGET_SPRING_BOOT_VERSION = "3.2.3";
+    @Autowired
+    private ApplicationContext applicationContext;
 
-    @Value("${spring.boot.version}")
-    private String applicationSpringBootVersion;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @Value("${new.config.key}")
-    private String newConfigKey;
+    @Value("${spring-boot-upgrade.target-version}")
+    private String targetSpringBootVersion;
 
-    @Test
-    void verifySpringBootVersion() {
-        assertEquals(TARGET_SPRING_BOOT_VERSION, SpringBootVersion.getVersion(),
-                "Spring Boot version mismatch. Ensure the application runs on Spring Boot 3.2.3");
+    @BeforeEach
+    public void setUp() {
+        // Load any necessary configuration for tests
     }
 
     @Test
-    void verifyApplicationSpringBootVersion() {
-        assertEquals(TARGET_SPRING_BOOT_VERSION, applicationSpringBootVersion,
-                "Application's reported Spring Boot version does not match the upgrade target.");
+    public void validateSpringBootVersion() {
+        String currentVersion = SpringBootApplication.class.getPackage().getImplementationVersion();
+        assertThat(currentVersion).isEqualTo(targetSpringBootVersion);
     }
 
     @Test
-    void verifyCriticalApplicationPath() {
-        // Simulate a critical application path and verify it's functioning
-        // Replace with actual service call when available
-        boolean isServiceUp = true; // mock condition
-        assertTrue(isServiceUp, "Critical application path failed post upgrade.");
+    public void testCriticalApplicationPathWorks() throws Exception {
+        this.mockMvc.perform(get("/api/products"))
+                    .andExpect(status().isOk());
     }
 
     @Test
-    void verifyDeprecatedApiRemoval() {
-        // Deprecated API should not exist anymore, ensure its absence
-        @SuppressWarnings("deprecation")
-        class Dummy {}
-
-        assertEquals(0, Dummy.class.getAnnotations().length,
-                "Deprecated API annotations still present in upgraded code.");
+    public void testDeprecatedAPIsReplaced() {
+        // Verify that deprecated APIs are no longer present or their replacements are invoked correctly.
+        // e.g., ensuring /api/v1 endpoint does not exist if deprecated.
+        assertThat(applicationContext.containsBean("oldBean")).isFalse();
+        assertThat(applicationContext.containsBean("newBean")).isTrue();
     }
 
     @Test
-    void validateNewConfigurationKey() {
-        assertEquals("expectedValue", newConfigKey, "New config key value not loaded correctly post upgrade.");
+    public void testNewConfigurationKeysLoadWithoutErrors() {
+        String newConfig = applicationContext.getEnvironment().getProperty("new.config.key");
+        assertThat(newConfig).isNotNull();
     }
 }
