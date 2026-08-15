@@ -1,9 +1,6 @@
-Changes in version 3.2.3
+Changes in version 3.2.1
 
 
 Functionality
 
 Enabling ProductPriceApi
-
-
-
