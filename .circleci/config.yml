@@ -36,7 +36,7 @@ jobs:
           paths:
             - ./sm-shop
   deploy:
-    machine: true
+    executor: shopizer-ci # Updated to use docker executor instead of machine
     steps:
        - attach_workspace:
           at: .
