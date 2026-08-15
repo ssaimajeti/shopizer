@@ -2,16 +2,11 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>com.salesmanager</groupId>
     <artifactId>shopizer</artifactId>
     <version>3.2.3</version>
     <packaging>pom</packaging>
-
-    <modules>
-        <module>sm-core-model</module>
-        <module>sm-shop</module>
-        <!-- Additional modules can be added here -->
-    </modules>
 
     <properties>
         <java.version>11</java.version>
@@ -31,6 +26,7 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- Spring Boot Starter Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -39,26 +35,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+        <!-- Add more Spring Boot starter dependencies as required -->
+
+        <!-- Existing dependencies not requiring upgrades should remain unchanged -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
+            <groupId>com.example</groupId>
+            <artifactId>some-existing-dependency</artifactId>
+            <version>1.0.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.14.0</version> <!-- Update or verify for compatibility -->
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>7.0.4.Final</version>
-        </dependency>
-        <!-- Additional dependencies not requiring upgrade can stay unchanged -->
+
+        <!-- Additional dependencies for Elasticsearch, Jackson, Guava, etc. should be added here with exact versions if applicable -->
+        
     </dependencies>
 
     <build>
@@ -75,16 +62,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
-            <!-- Other build plugins can be included here if needed -->
+            <!-- Other plugins can be added as needed -->
         </plugins>
     </build>
 
