@@ -1,18 +1,17 @@
 version: 2.1
 
 orbs:
-  # Including the Slack orb for notifications in our CI/CD pipelines
   slack: circleci/slack@3.4.2
 
 executors:
-  # Executor definition for building and deploying Shopizer in CircleCI using a Java environment
   shopizer-ci:
     docker:
-      - image: shopizerecomm/ci:java17 # Updated Java version to 17 to support Spring Boot 3.2.3
+      - image: shopizerecomm/ci:java17  # Upgraded to Java 17 Docker image since Spring Boot 3 requires Java 17
         auth:
           username: shopizerecomm
-          password: $DOCKERHUB_PASSWORD
-    working_directory: /tmp
+          password: $DOCKERHUB_PASSWORD  
+      
+working_directory: /tmp
 
 jobs:
   build:
@@ -34,29 +33,25 @@ jobs:
     steps:
        - attach_workspace:
           at: .
-       # start proprietary DB using private Docker image
-       # with credentials stored in the UI
        - run:
-           name: List files in repo
+           name: list files in repo
            command: ls -al
            working_directory: .
        - run:
-           name: List files in shop
+           name: list files in shop
            command: ls -al
            working_directory: ./sm-shop
        - run:
-           name: List files in shop/target
+           name: list files in shop/target
            command: ls -al
            working_directory: ./sm-shop/target
        - run: |
            docker login -u shopizerecomm -p $DOCKERHUB_PASSWORD
        - run: |
-           (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.3)
-           # Updated Docker tag version to align with new Shopizer version
+           (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.3)  # Updated version tag to 3.2.3
        - run:
-           name: Push image
-           command: docker push shopizerecomm/shopizer:3.2.3
-           # Updated Docker tag version to align with new Shopizer version
+           name: push image
+           command: docker push shopizerecomm/shopizer:3.2.3  # Updated version tag to 3.2.3
 
 workflows:
   build_and_deploy:
