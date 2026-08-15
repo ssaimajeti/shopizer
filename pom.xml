@@ -3,13 +3,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.salesmanager</groupId>
+    <groupId>com.mycompany.shopizer</groupId>
     <artifactId>shopizer</artifactId>
     <version>3.2.3</version>
     <packaging>pom</packaging>
 
     <properties>
         <java.version>11</java.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <spring-boot.version>3.2.3</spring-boot.version>
     </properties>
 
@@ -26,7 +28,6 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Spring Boot Starter Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -35,17 +36,30 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-        <!-- Add more Spring Boot starter dependencies as required -->
-
-        <!-- Existing dependencies not requiring upgrades should remain unchanged -->
         <dependency>
-            <groupId>com.example</groupId>
-            <artifactId>some-existing-dependency</artifactId>
-            <version>1.0.0</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-
-        <!-- Additional dependencies for Elasticsearch, Jackson, Guava, etc. should be added here with exact versions if applicable -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
         
+        <!-- Consider upgrading Elasticsearch related dependencies as needed per Spring Boot 3.x specs -->
+        
+        <!-- Other existing dependencies -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.0.1-jre</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.13.4</version>
+        </dependency>
+        <!-- Add other dependencies that are not covered by Spring Boot BOM -->
+
     </dependencies>
 
     <build>
@@ -53,17 +67,15 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
-            <!-- Other plugins can be added as needed -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
 </project>
