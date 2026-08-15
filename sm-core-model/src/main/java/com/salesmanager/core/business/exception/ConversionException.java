@@ -4,8 +4,19 @@
 package com.salesmanager.core.business.exception;
 
 /**
- * @author Umesh A
- *
+ * Custom exception class for conversion-related errors.
+ * 
+ * Represents an error during the conversion process.
+ * This class extends the base Exception class.
+ * It provides multiple constructors to create instances
+ * with a custom message and an optional cause.
+ * 
+ * @version 1.0
+ * @since 2.0
+ * 
+ * @see java.lang.Exception
+ * 
+ * Author: Umesh A
  */
 public class ConversionException extends Exception
 {
@@ -25,7 +36,4 @@ public class ConversionException extends Exception
   {
       super(t);
   }
-  
-  
-
 }
