@@ -1,64 +1,70 @@
 package com.salesmanager.core.upgrade;
 
-import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.boot.SpringBootVersion;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
-@WebMvcTest
 public class SpringBootUpgradeValidationTests {
+    
+    private static final String TARGET_VERSION = "3.2.3";
 
     @Autowired
-    private ApplicationContext applicationContext;
+    private Environment environment;
 
     @Autowired
-    private MockMvc mockMvc;
+    private JdbcTemplate jdbcTemplate;
 
-    @Value("${spring-boot-upgrade.target-version}")
-    private String targetSpringBootVersion;
-
-    @BeforeEach
-    public void setUp() {
-        // Load any necessary configuration for tests
+    @Test
+    public void testIsCorrectSpringBootVersion() {
+        String version = SpringBootVersion.getVersion();
+        assertEquals(TARGET_VERSION, version, "Spring Boot version should be upgraded to " + TARGET_VERSION);
     }
 
     @Test
-    public void validateSpringBootVersion() {
-        String currentVersion = SpringBootApplication.class.getPackage().getImplementationVersion();
-        assertThat(currentVersion).isEqualTo(targetSpringBootVersion);
+    public void testApplicationStartsUp() {
+        assertNotNull(environment, "Environment should have been autowired and not null, indicating a successful application startup.");
     }
 
     @Test
-    public void testCriticalApplicationPathWorks() throws Exception {
-        this.mockMvc.perform(get("/api/products"))
-                    .andExpect(status().isOk());
+    public void testDatabaseConnectivity() {
+        Integer numberOfTables = jdbcTemplate.queryForObject("SELECT count(*) FROM information_schema.tables", Integer.class);
+        assertTrue(numberOfTables > 0, "Database should have accessible tables, indicating successful connection.");
     }
 
     @Test
-    public void testDeprecatedAPIsReplaced() {
-        // Verify that deprecated APIs are no longer present or their replacements are invoked correctly.
-        // e.g., ensuring /api/v1 endpoint does not exist if deprecated.
-        assertThat(applicationContext.containsBean("oldBean")).isFalse();
-        assertThat(applicationContext.containsBean("newBean")).isTrue();
+    public void testDeprecatedApiReplacement() {
+        // Test that jakarta.persistence is used instead of javax.persistence
+        boolean isUsingJakartaPersistence = Optional.ofNullable(Product.class.getPackage())
+            .map(Package::getName)
+            .filter(pkg -> pkg.startsWith("jakarta.persistence"))
+            .isPresent();
+        assertTrue(isUsingJakartaPersistence, "Should use 'jakarta.persistence' instead of 'javax.persistence' after upgrade.");
     }
 
     @Test
-    public void testNewConfigurationKeysLoadWithoutErrors() {
-        String newConfig = applicationContext.getEnvironment().getProperty("new.config.key");
-        assertThat(newConfig).isNotNull();
+    public void testNewConfigurationKeys() {
+        // Assume that a new configuration property "application.newFeature.enabled" was introduced in 3.2.3
+        String property = environment.getProperty("application.newFeature.enabled");
+        assertNotNull(property, "New configuration key 'application.newFeature.enabled' should be available");
+        assertEquals("true", property, "The default value for 'application.newFeature.enabled' should be 'true'");
+    }
+
+    @Test
+    public void testCriticalPathRestApis() {
+        // Mock REST requests and verify for an example critical path
+        try {
+            String result = restTemplate.getForObject("/api/products", String.class); // Hypothetical endpoint
+            assertNotNull(result, "The /api/products endpoint should return data.");
+        } catch (Exception ex) {
+            fail("REST API call failed with error: " + ex.getMessage());
+        }
     }
 }
