@@ -30,9 +30,8 @@
 
 		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-ehcache -->
 		<dependency>
-			<groupId>org.hibernate.orm</groupId>
+			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-ehcache</artifactId>
-			<!-- TODO: Verify compatibility with Spring Boot 3.x -->
 		</dependency>
 
 		<!-- sm-core-model -->
@@ -68,7 +67,6 @@
 			<version>1.0.3</version>
 		</dependency>
 		
-
 		<!--
 		Want to use Square Payment Module ?
         <dependency>
@@ -77,7 +75,6 @@
             <version>1.0.0</version>
         </dependency>
         -->
-
 
 		<!-- Google Map API -->
 		<dependency>
@@ -94,8 +91,8 @@
 					<artifactId>guava</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>javax.annotation</groupId>
-					<artifactId>jsr250-api</artifactId>
+					<groupId>jakarta.annotation</groupId>
+					<artifactId>jakarta.annotation-api</artifactId> <!-- Updated for Jakarta EE -->
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -126,13 +123,11 @@
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-core</artifactId>
-			<!-- TODO: Verify Infinispan compatibility with Spring Boot 3.x -->
 		</dependency>
 
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-tree</artifactId>
-			<!-- TODO: Verify Infinispan compatibility with Spring Boot 3.x -->
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
@@ -181,7 +176,6 @@
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-ses</artifactId>
-			<!-- TODO: Verify compatibility with Spring Boot 3.x -->
 		</dependency>
 
 		<!-- google cloud storage -->
@@ -235,7 +229,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<!-- TODO: Verify compatibility with Spring Boot 3.x -->
 		</dependency>
 		<!-- H2 DB -->
 		<dependency>
