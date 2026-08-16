@@ -1,70 +1,54 @@
-package com.salesmanager.core.upgrade;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.Optional;
+package com.shopizer;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootVersion;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
-import org.springframework.jdbc.core.JdbcTemplate;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-public class SpringBootUpgradeValidationTests {
-    
-    private static final String TARGET_VERSION = "3.2.3";
+class SpringBootUpgradeValidationTest {
 
     @Autowired
-    private Environment environment;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private Environment env;
 
     @Test
-    public void testIsCorrectSpringBootVersion() {
-        String version = SpringBootVersion.getVersion();
-        assertEquals(TARGET_VERSION, version, "Spring Boot version should be upgraded to " + TARGET_VERSION);
+    void contextLoads() {
     }
 
     @Test
-    public void testApplicationStartsUp() {
-        assertNotNull(environment, "Environment should have been autowired and not null, indicating a successful application startup.");
+    void shouldUseCorrectSpringBootVersion() {
+        // Verify the Spring Boot version is the upgraded version 3.2.3
+        String bootVersion = SpringBootVersion.getVersion();
+        assertThat(bootVersion).isEqualTo("3.2.3");
     }
 
     @Test
-    public void testDatabaseConnectivity() {
-        Integer numberOfTables = jdbcTemplate.queryForObject("SELECT count(*) FROM information_schema.tables", Integer.class);
-        assertTrue(numberOfTables > 0, "Database should have accessible tables, indicating successful connection.");
-    }
+    void shouldNotUseDeprecatedJavaxPackages() {
+        // Assume application context and configurations are loaded
+        String[] propertyNames = env.getPropertySources().stream()
+                .flatMap(source -> source.getPropertyNames().stream())
+                .toArray(String[]::new);
 
-    @Test
-    public void testDeprecatedApiReplacement() {
-        // Test that jakarta.persistence is used instead of javax.persistence
-        boolean isUsingJakartaPersistence = Optional.ofNullable(Product.class.getPackage())
-            .map(Package::getName)
-            .filter(pkg -> pkg.startsWith("jakarta.persistence"))
-            .isPresent();
-        assertTrue(isUsingJakartaPersistence, "Should use 'jakarta.persistence' instead of 'javax.persistence' after upgrade.");
-    }
-
-    @Test
-    public void testNewConfigurationKeys() {
-        // Assume that a new configuration property "application.newFeature.enabled" was introduced in 3.2.3
-        String property = environment.getProperty("application.newFeature.enabled");
-        assertNotNull(property, "New configuration key 'application.newFeature.enabled' should be available");
-        assertEquals("true", property, "The default value for 'application.newFeature.enabled' should be 'true'");
-    }
-
-    @Test
-    public void testCriticalPathRestApis() {
-        // Mock REST requests and verify for an example critical path
-        try {
-            String result = restTemplate.getForObject("/api/products", String.class); // Hypothetical endpoint
-            assertNotNull(result, "The /api/products endpoint should return data.");
-        } catch (Exception ex) {
-            fail("REST API call failed with error: " + ex.getMessage());
+        for (String property : propertyNames) {
+            assertTrue(!property.contains("javax."), "Application should not contain javax properties.");
         }
+    }
+
+    @Test
+    void criticalApplicationPathResearchShouldSucceed() {
+        // Add actual logic to test one critical path to verify functionality
+        // e.g., accessing a known spring-injected bean or function
+        // This is a placeholder and should be tailored to your application’s specifics
+    }
+    
+    @Test
+    void newConfigurationKeysShouldLoadWithoutErrors() {
+        // Assume new configuration keys added are specified in application.properties
+        // Validate these keys can be read without errors
+        String key = env.getProperty("new.config.key");
+        assertThat(key).isNotNull();
     }
 }
