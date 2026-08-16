@@ -1,4 +1,4 @@
-# Shopizer 3 (for java 1.8 +) (tested with Java 11)
+# Shopizer 3 (for java 11+)
 
 
 ### Shopizer 2.X (for java 1.8 +) is still available
@@ -62,8 +62,8 @@ docker run \
 
 ```
 docker run \
- -e "APP_MERCHANT=DEFAULT"
- -e "APP_BASE_URL=http://localhost:8080"
+ -e "APP_MERCHANT=DEFAULT" \
+ -e "APP_BASE_URL=http://localhost:8080" \
  -p 80:80 shopizerecomm/shopizer-shop-reactjs
 ```
 
@@ -95,9 +95,9 @@ To build the application:
 From the command line:
 
 	$ cd shopizer
-	$ mvn clean install
+	$ mvnw clean install
 	$ cd sm-shop
-	$ mvn spring-boot:run
+	$ mvnw spring-boot:run
 
 2. Shopizer admin
 
@@ -147,16 +147,16 @@ Clone from fork repository
 
 Build application according to steps provided above
 
-Synchronize lastest version with the upstream
+Synchronize latest version with the upstream
 -------------------
 
-       $ git remote add upstream https://github.com/yourusername/shopizer.git
-	  $ git pull upstream 3.2.3
+       $ git remote add upstream https://github.com/shopizer-ecommerce/shopizer.git
+       $ git pull upstream 3.2.3
 
 Create new branch in your repository
 -------------------
 
-	   $ git checkout -b branch-name
+       $ git checkout -b branch-name
 
 
 Push your changes to Shopizer
