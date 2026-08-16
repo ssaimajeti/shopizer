@@ -6,7 +6,7 @@ orbs:
 executors:
   shopizer-ci:
     docker:
-      - image: shopizerecomm/ci:java17 # Updated to use Java 17 compatible image as per Spring Boot 3.x requirements
+      - image: shopizerecomm/ci:java17
         auth:
           username: shopizerecomm
           password: $DOCKERHUB_PASSWORD
@@ -23,37 +23,36 @@ jobs:
           name: Run shell script
           command: |
             set -x
-            /home/shopizer/tools/shopizer.sh tests
+            ./mvnw clean test
       - persist_to_workspace:
           root: .
           paths:
             - ./sm-shop
+
   deploy:
     machine: true
     steps:
-       - attach_workspace:
+      - attach_workspace:
           at: .
-       # start proprietary DB using private Docker image
-       # with credentials stored in the UI
-       - run:
-           name: list files in repo
-           command: ls -al
-           working_directory: .
-       - run:
-           name: list files in shop
-           command: ls -al
-           working_directory: ./sm-shop
-       - run:
-           name: list files in shop/target
-           command: ls -al
-           working_directory: ./sm-shop/target
-       - run: |
-           docker login -u shopizerecomm -p $DOCKERHUB_PASSWORD
-       - run: |
-           (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.3) # Updated version tag to 3.2.3
-       - run:
-           name: push image
-           command: docker push shopizerecomm/shopizer:3.2.3 # Updated version tag to 3.2.3
+      - run:
+          name: list files in repo
+          command: ls -al
+          working_directory: .
+      - run:
+          name: list files in shop
+          command: ls -al
+          working_directory: ./sm-shop
+      - run:
+          name: list files in shop/target
+          command: ls -al
+          working_directory: ./sm-shop/target
+      - run: |
+          docker login -u shopizerecomm -p $DOCKERHUB_PASSWORD
+      - run: |
+          (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.3)
+      - run:
+          name: push image
+          command: docker push shopizerecomm/shopizer:3.2.3
 
 workflows:
   build_and_deploy:
@@ -62,3 +61,6 @@ workflows:
       - deploy:
           requires:
             - build
+
+# Note: The docker image in the executor has been updated to support Java 17, needed for Spring Boot 3.2.3.
+# The Maven build step now uses Maven wrapper with 'mvnw' to clean and test, ensuring compatibility with upgraded dependencies.
