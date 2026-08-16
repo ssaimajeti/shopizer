@@ -1,15 +1,23 @@
-# Upgrade Tasks for Spring Boot Migration
+### Tasks for Spring Boot Upgrade 2.5.12 to 3.2.3
 
-## Build Configuration
-- [ ] Identify and list all build configuration files such as `pom.xml` or `build.gradle` involved.
+#### Preparatory Tasks
+1. Confirm build system in use due to absence of `pom.xml` and `build.gradle` (❌, CAST Query).
+2. Identify all outdated dependencies using existing dependency management strategies.
 
-## Namespace/Import Migration
-- [ ] Count: Migrate all identified instances of `javax.*` to `jakarta.*` in **60+ JPA entities** and any usage in MVC / controller files.
+#### Code Adaptation for JPA Entities
+3. Modify all identified JPA Entity classes for namespace transition (`javax.*` to `jakarta.*`): 
+   - `Group (17917)`, `CustomerReview (17519)`, etc. (43 identified via CAST)
 
-## Structural Rewrites
-- [ ] Refactor Initialization and Security-related Spring Beans from **100+ Bean components** to comply with Spring 3.2.
-- [ ] Revise all identified Spring MVC configurations to adhere to new version specifications.
+#### Amend Spring Bean Components
+4. Update Spring Beans:
+   - `OrderTotalService (21201)`, `AuthenticateUserApi (21326)` (43 identified via CAST)
 
-## Testing
-- [ ] Develop and execute new unit tests and integration tests to verify upgraded build integrity.
-- [ ] Conduct performance testing to ensure no performance degradation occurs.
+#### Modify Spring MVC Interactions
+5. Revise Spring MVC API endpoints:
+   - Example: `OrderApi`, `CustomerApi`, `ProductApi` revisions for HTTP methods (39 identified via CAST)
+
+#### Testing and Validation
+6. Run comprehensive test suite to validate operations after updates.
+7. Resolve any regression identified during testing phases.
+
+8. Audit and sign off completed upgrade for production environment.
