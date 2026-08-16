@@ -1,23 +1,22 @@
-# Upgrade Specification for Shopizer-3.2.5 from Spring Boot 2.5.12 to 3.2.3
+## Upgrade Spring Boot from 2.5.12 to 3.2.3 for Shopizer-3.2.5
 
-## Current State
-- **Application Name:** Shopizer-3.2.5
-- **Lines of Code (LOC):** 91,162
-- **Technology Stack:** AWS SDK S3, Google Cloud Storage, Hibernate, Java, Java EE, JPA, Spring, Spring Web Services.
+### Current State
+Shopizer-3.2.5 leverages Spring Boot 2.5.12 and adopts a technology stack comprising `aws sdk s3`, `google cloud storage`, `hibernate`, `java`, `spring`, and `spring web services`. The application contains approximately 91,162 lines of code across 16,572 elements, including JPA Entities, Spring Beans, and Spring MVC components.
 
-## Proposed Changes
-- **Spring Boot Upgrade:** Transition from Spring Boot version 2.5.12 to 3.2.3, focusing on runtime performance and security enhancements.
-- **Namespace Migrations Required:** Java package changes from `javax.*` to `jakarta.*` should be identified and updated.
-- **Spring Framework:** Review and update Spring Beans and MVC configurations to align with new Spring Boot version features and deprecations.
+### Proposed Changes
+Upgrade the Spring Boot framework to version 3.2.3. The upgrade involves updating dependencies, code modifications for compatibility, and potential namespace changes, especially migrating from `javax.*` to `jakarta.*` due to underlying Java changes in version 11+.
 
-## Breaking Changes
-| Component           | Affected files count | Description                      |
-|---------------------|----------------------|----------------------------------|
-| JPA Entities        | 60+                  | Requires migration to new Jakarta standards.            |
-| Spring Beans        | ~100+                | Update for Spring 3.2 changes, especially security and initialization.   |
-| Spring MVC          | 100+                 | Adapt to new restful conventions and version-specific changes.          |
+### Breaking Changes
+- **Namespace Migration**: Transition from `javax.*` to `jakarta.*`; estimated on multiple JPA Entities and Spring Beans.
+- **Dependency Updates**: Ensure external libraries have compatible versions with Spring Boot 3.2.3.
+- **Testing Frameworks**: Validation and potential upgrades for testing frameworks and assertions.
 
-## Acceptance Criteria
-- Successful integration tests indicating correct migration of namespaces and boot features.
-- Zero runtime exceptions following the deployment of the upgraded version.
-- Performance metrics should not degrade post-upgrade.
+### Affected Object Counts
+- JPA Entities: 43
+- Spring Beans: 43
+- Spring MVC Components: 39
+
+### Acceptance Criteria
+1. Upgrade must ensure all current functionalities operate without issues in Spring Boot 3.2.3.
+2. All endpoints must pass integration and unit tests post-upgrade.
+3. Build system configuration should be verified and updated if discrepancies are identified.
