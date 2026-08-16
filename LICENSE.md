@@ -1,4 +1,4 @@
-The file LICENSE.md does not need any changes for the migration from Spring Boot 2.5.12 to 3.2.3 as it is a license file and remains unaffected by code framework updates. Therefore, I will output it unchanged:
+The file `LICENSE.md` does not contain any Java-specific code or dependencies, and therefore does not need any changes for the migration of the Java and Spring Boot versions. Here is the complete file content unchanged:
 
 ```
 Apache License
