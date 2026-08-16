@@ -1,75 +1,105 @@
-// MigrationHelper.java
-// This file aids in migrating the codebase from Spring Boot 2.5.12 to 3.2.3
-// including necessary namespace, class, and configuration transformations.
+// com/shopizer/compatibility/SpringBootCompatibilityShim.java
 
-package com.salesmanager.migration;
+package com.shopizer.compatibility;
 
-// Importing required packages
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
-// Deprecated javax imports are redirected to jakarta
-// TODO: Manually check for any exceptions where javax namespace is still used
-import javax.annotation.Generated; 
+// TODO: Replace all javax.* imports with jakarta.* imports in entity classes and other JPA-related classes
 
-// The main migration helper class
-@SpringBootApplication
-public class MigrationHelper {
-
-    public static void main(String[] args) {
-        SpringApplication.run(MigrationHelper.class, args);
-    }
-
-    // Wrap deprecated API usages if necessary
-    // TODO: Replace direct usages of javax.persistence to jakarta.persistence throughout the code
-    @Generated("javax.persistence")
-    public EntityInfo wrapDeprecatedEntity(EntityInfo entityInfo) {
-        // Implementation to adapt deprecated entity info handling if required
-        return entityInfo;
+/**
+ * This compatibility shim preserves the original API signatures that were backed by Java EE's javax package.
+ * We re-export them to be backed by Jakarta EE's jakarta package.
+ */
+public class SpringBootCompatibilityShim {
+    
+    // Example conversion method for javax → jakarta. More conversions might be necessary.
+    @javax.annotation.PostConstruct
+    public void oldPostConstruct() {
+        // This method needs to be replaced with its jakarta annotation equivalent where used.
     }
     
-    // Function to migrate configuration formats
-    public static void migrateConfiguration(String oldConfigPath, String newConfigPath) {
-        // TODO: Implement detailed logic for converting old configuration format to new configuration format.
-        // Provide mapping rules for old to new configuration properties.
+    @jakarta.annotation.PostConstruct
+    public void newPostConstruct() {
+        // New equivalent method using jakarta namespace.
     }
+    
+    // Deprecated API replacements and shims methods to be added as needed.
+    
+    // TODO: Identify and refactor old API usages that require manual code adjustments post-migration.
+    
+}
+```
 
-    // Example of proposed JPA Entity with updated jakarta annotations
-    @Entity
-    @Table(name = "PRODUCT_OPTION_VALUE", 
-    indexes = { @Index(name = "PRD_OPTION_VAL_CODE_IDX", columnList = "PRODUCT_OPTION_VAL_CODE") }, 
-    uniqueConstraints = @UniqueConstraint(columnNames = {"MERCHANT_ID", "PRODUCT_OPTION_VAL_CODE"}))
-    public class ProductOptionValue {
+```xml
+<!-- Updated root pom.xml for Spring Boot Upgrade -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
 
-        @Id
-        @Column(name = "PRODUCT_OPTION_VALUE_ID")
-        @TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", 
-        pkColumnValue = "PRODUCT_OPT_VAL_SEQ_NEXT_VAL")
-        @GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
-        private Long id;
+    <groupId>com.shopizer</groupId>
+    <artifactId>shopizer</artifactId>
+    <packaging>pom</packaging>
+    <version>3.2.3</version>
 
-        @Column(name = "PRODUCT_OPT_VAL_SORT_ORD")
-        private Integer productOptionValueSortOrder;
+    <name>shopizer</name>
+    <url>http://www.shopizer.com</url>
 
-        @NotEmpty
-        @Pattern(regexp = "^[a-zA-Z0-9_]*$")
-        @Column(name = "PRODUCT_OPTION_VAL_CODE")
-        private String code;
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
 
-        // TODO: Update other fields and methods as necessary, ensuring compatibility with Jakarta namespace.
-    }
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.3</version>
+    </parent>
 
-    // Example shim for renamed packages or classes
-    // Ensures backward compatibility with old import paths
-    public class LegacyPackageImports {
-        // Map javax.servlet to jakarta.servlet
-        // TODO: Evaluate if javax.servlet needs to be explicitly mapped or refactored across the codebase
-    }
-} 
+    <modules>
+        <module>sm-core-model</module>
+        <module>sm-core-modules</module>
+        <module>sm-core</module>
+        <module>sm-shop-model</module>
+        <module>sm-shop</module>
+    </modules>
 
-// Additional helper classes or functions can be added as needed to support the migration process
-// The goal is to ensure the system continues to function seamlessly post-migration without requiring immediate
-// full manual refactoring of all deprecated or renamed interfaces.
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        
+        <!-- Upgraded Java version to align with Spring Boot 3.2.3 -->
+        <java.version>17</java.version>
+        
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+
+        <shopizer.search.version>2.11.1</shopizer.search.version>
+        <shopizer-canadapost.version>2.15.0</shopizer-canadapost.version>
+
+        <!-- Update versions for necessary libraries to ensure compatibility -->
+        <elasticsearch.version>8.0.0</elasticsearch.version> <!-- Example, update with actual compatible version -->
+        <jakarta.persistence.version>3.0.0</jakarta.persistence.version>
+
+        <!-- TODO: Adjust other library versions that may need manual updates -->
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+        
+            <!-- Ensure dependencies use Jakarta namespaces -->
+            <dependency>
+                <groupId>jakarta.persistence</groupId>
+                <artifactId>jakarta.persistence-api</artifactId>
+                <version>${jakarta.persistence.version}</version>
+            </dependency>
+
+            <!-- Update other necessary dependencies in line with this upgrade -->
+            <!-- TODO: Verify and manage dependency exclusions and shims required post-migration -->
+        </dependencies>
+    </dependencyManagement>
+</project>
