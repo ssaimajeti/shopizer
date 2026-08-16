@@ -1,16 +1,20 @@
-### CAST Research Findings
+## Research Findings from CAST
 
-✅ **JPA Entities**: Identified multiple JPA Entities within application (43 entities). Relevant files include `Group.java (17917)`, `CustomerReview.java (17519)` (Source: CAST MCP — Objects query).
+### Application Overview
+- **Name:** Shopizer-3.2.5
+- **LOB:** 91162
+- **Elements Count:** 16572
+- **Technologies:** AWS SDK S3 for Java, Hibernate, Java EE, JPA, Spring, Spring MVC.
 
-✅ **Spring Beans**: Large number of Spring Beans reflecting current application design (total 43). Example includes `OrderTotalServiceImpl (21201)` (Source: CAST MCP — Objects query).
+### Objects Findings
+- **JPA Entities:** Over 20 entities identified, including `Group`, `CustomerReview`, `Transaction`, `TaxRate`, etc.
+- **Spring Beans:** Critical beans like `OrderTotalService`, `AuthenticateUserApi`, `applicationEventMulticaster` were identified.
+- **Spring MVC Operations:** Large number of REST endpoints via Spring MVC annotations.
 
-✅ **Spring MVC Endpoints**: Key Spring MVC REST components (total 39), such as `OrderApi` and `CustomerApi` (Source: CAST MCP — Objects query).
+### Queries Log
+1. `objects` query for `JPA Entities` - Successful.
+2. `objects` query for `Spring Beans` - Successful.
+3. `objects` query for `Spring MVC` - Successful.
+4. `stats` query - Successful. Provided comprehensive data on application size and technologies.
 
-✅ **Tech Inventory**: Technologies—AWS S3, Google Cloud, Hibernate, Java—existent (Source: CAST MCP — Application stats).
-
-❌ **Build Files**: No `pom.xml` or `build.gradle` files identified, verifying build system is pending further investigation (Source: CAST MCP — Objects query).
-
-### Technical Appendix
-
-(Source: CAST MCP — [objects: JPA Entities/Spring Beans/Endpoints] / [count])
-(Source: CAST MCP — [application stats] / [count])
+(Source: CAST MCP)
