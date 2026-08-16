@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.io.IOUtils;
 import org.infinispan.tree.Fqn;
 import org.infinispan.tree.Node;
@@ -375,102 +375,4 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
   @Override
   public OutputContentFile getProductImage(String merchantStoreCode, String productCode,
       String imageName, ProductImageSize size) throws ServiceException {
-    return getProductImage(merchantStoreCode, productCode, imageName, size.name());
-  }
-
-  private OutputContentFile getProductImage(String merchantStoreCode, String productCode,
-      String imageName, String size) throws ServiceException {
-
-    if (cacheManager.getTreeCache() == null) {
-      throw new ServiceException(
-          "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()");
-    }
-    InputStream input = null;
-    OutputContentFile contentImage = new OutputContentFile();
-    try {
-
-      FileNameMap fileNameMap = URLConnection.getFileNameMap();
-
-      // SMALL by default
-      StringBuilder nodePath = new StringBuilder();
-      nodePath.append(merchantStoreCode).append(Constants.SLASH).append(productCode)
-          .append(Constants.SLASH).append(size);
-
-      Node<String, Object> productNode = this.getNode(nodePath.toString());
-
-
-      byte[] imageBytes = (byte[]) productNode.get(imageName);
-
-      if (imageBytes == null) {
-        LOGGER.warn("Image " + imageName + " does not exist");
-        return null;// no post processing will occur
-      }
-
-      input = new ByteArrayInputStream(imageBytes);
-      ByteArrayOutputStream output = new ByteArrayOutputStream();
-      IOUtils.copy(input, output);
-
-      String contentType = fileNameMap.getContentTypeFor(imageName);
-
-      contentImage.setFile(output);
-      contentImage.setMimeType(contentType);
-      contentImage.setFileName(imageName);
-
-
-
-    } catch (Exception e) {
-      throw new ServiceException(e);
-    } finally {
-      if (input != null) {
-        try {
-          input.close();
-        } catch (Exception ignore) {
-        }
-      }
-    }
-
-    return contentImage;
-
-  }
-
-
-  @SuppressWarnings("unchecked")
-  private Node<String, Object> getNode(final String node) {
-    LOGGER.debug("Fetching node for store {} from Infinispan", node);
-    final StringBuilder merchantPath = new StringBuilder();
-    merchantPath.append(getRootName()).append(node);
-
-    Fqn contentFilesFqn = Fqn.fromString(merchantPath.toString());
-
-    Node<String, Object> nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn);
-
-    if (nd == null) {
-
-      cacheManager.getTreeCache().getRoot().addChild(contentFilesFqn);
-      nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn);
-
-    }
-
-    return nd;
-
-  }
-
-  public CacheManager getCacheManager() {
-    return cacheManager;
-  }
-
-  public void setCacheManager(CacheManager cacheManager) {
-    this.cacheManager = cacheManager;
-  }
-
-  public void setRootName(String rootName) {
-    this.rootName = rootName;
-  }
-
-  public String getRootName() {
-    return rootName;
-  }
-
-
-
-}
+    return getProductImage

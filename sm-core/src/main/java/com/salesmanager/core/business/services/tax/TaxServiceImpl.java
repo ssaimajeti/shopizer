@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -289,14 +289,4 @@ public class TaxServiceImpl
 			
 			
 		@SuppressWarnings("rawtypes")
-		Collection<TaxItem> values = taxItemsMap.values();
-		
-		
-		@SuppressWarnings("unchecked")
-		List<TaxItem> list = new ArrayList<TaxItem>(values);
-		return list;
-
-	}
-
-
-}
+		Collection<TaxItem> values = taxIt
