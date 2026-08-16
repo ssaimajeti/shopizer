@@ -6,11 +6,11 @@ orbs:
 executors:
   shopizer-ci:
     docker:
-      - image: shopizerecomm/ci:java11
+      - image: shopizerecomm/ci:java-3.2.3
         auth:
           username: shopizerecomm
-          password: $DOCKERHUB_PASSWORD  
-      
+          password: $DOCKERHUB_PASSWORD
+
 working_directory: /tmp
 
 jobs:
@@ -19,53 +19,47 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Run Mvn Checkstyle
+          name: Lint Code
           command: mvn checkstyle:check
 
-  test:
+  unit_tests:
     executor: shopizer-ci
     steps:
       - checkout
       - run:
-          name: Run Tests
+          name: Run Unit Tests
           command: mvn test
-  
+
   build:
     executor: shopizer-ci
     steps:
       - checkout
+      - run: echo "shopizer build and test"
       - run:
-          name: Build Application
+          name: Compile and Run Tests
           command: mvn clean install
       - persist_to_workspace:
           root: .
           paths:
             - ./sm-shop
 
-  sast_scan:
-    executor: shopizer-ci
-    steps:
-      - checkout
-      - run:
-          name: Run SAST Scan
-          command: |
-            echo "Static Application Security Testing not setup, skipping..."
-
   deploy:
     machine: true
     steps:
        - attach_workspace:
           at: .
+       # start proprietary DB using private Docker image
+       # with credentials stored in the UI
        - run:
-           name: list files in repo
+           name: List Repo Files
            command: ls -al
            working_directory: .
        - run:
-           name: list files in shop
+           name: List Shop Files
            command: ls -al
            working_directory: ./sm-shop
        - run:
-           name: list files in shop/target
+           name: List Shop/Target Files
            command: ls -al
            working_directory: ./sm-shop/target
        - run: |
@@ -73,19 +67,26 @@ jobs:
        - run: |
            (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.3)
        - run:
-           name: push image
+           name: Push Image
            command: docker push shopizerecomm/shopizer:3.2.3
+
+  sast:
+    executor: shopizer-ci
+    steps:
+      - checkout
+      - run:
+          name: Run SAST Scan
+          command: mvn dependency-check:aggregate
 
 workflows:
   build_and_deploy:
     jobs:
       - lint
-      - test
-      - build:
-          requires:
-            - lint
-            - test
-      - sast_scan
+      - unit_tests
+      - build
       - deploy:
+          requires:
+            - build
+      - sast:
           requires:
             - build
