@@ -1,5 +1,12 @@
+/**
+ * 
+ */
 package com.salesmanager.core.business.exception;
 
+/**
+ * Author: Umesh A
+ *
+ */
 public class ConversionException extends Exception
 {
   private static final long serialVersionUID = 687400310032876603L;
@@ -18,4 +25,7 @@ public class ConversionException extends Exception
   {
       super(t);
   }
+  
+  
+
 }
