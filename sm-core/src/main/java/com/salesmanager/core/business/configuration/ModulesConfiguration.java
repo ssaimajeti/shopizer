@@ -12,7 +12,7 @@ import com.salesmanager.core.modules.integration.shipping.model.ShippingQuoteMod
 
 /**
  * Contains injection of external shopizer starter modules
- * @author carlsamson
+ * 
  * New Way - out of xml config and using spring boot starters
  *
  */
@@ -35,10 +35,5 @@ public class ModulesConfiguration {
      */
     @Autowired
     private List<PaymentModule> liveModules;
-
-    
-    
-    
-
 
 }

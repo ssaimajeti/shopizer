@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -253,32 +253,4 @@ public class ProductVariationApi {
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/variation/{variationId}" }, method = RequestMethod.DELETE)
 	@ApiImplicitParams({ 
-		@ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public void delete(
-			@PathVariable Long variationId,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
-
-		productVariationFacade.delete(variationId, merchantStore);
-
-	}
-	
-
-	@ResponseStatus(HttpStatus.OK)
-	@RequestMapping(value = { "/private/product/variations" }, method = RequestMethod.GET)
-	@ApiImplicitParams({ 
-		@ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public @ResponseBody ReadableEntityList<ReadableProductVariation> list(
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
-			@RequestParam(value = "page", required = false, defaultValue="0") Integer page,
-		    @RequestParam(value = "count", required = false, defaultValue="10") Integer count) {
-
-		return productVariationFacade.list(merchantStore, language, page, count);
-
-		
-	}
-  
-}
+		@ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAU

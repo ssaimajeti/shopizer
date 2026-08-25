@@ -48,7 +48,7 @@
   </developers>
 
   <dependencies>
-  
+
     <!-- sm-core-model -->
     <dependency>
       <groupId>com.shopizer</groupId>
@@ -60,14 +60,15 @@
       <artifactId>spring-core</artifactId>
     </dependency>
     
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-webmvc</artifactId>
-	</dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>jakarta.annotation</groupId>
       <artifactId>jakarta.annotation-api</artifactId>
+      <!-- Updated from javax to jakarta for Spring Boot 3.x compatibility -->
     </dependency>
 
     <!-- Swagger 2 documentation -->
@@ -132,7 +133,7 @@
               <additionalparam>${javadoc.opts}</additionalparam>
               <doclint>none</doclint>
               <source>11</source>
-    		  <detectJavaApiLink>false</detectJavaApiLink>
+              <detectJavaApiLink>false</detectJavaApiLink>
             </configuration>
           </execution>
         </executions>

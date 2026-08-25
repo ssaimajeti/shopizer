@@ -1,6 +1,6 @@
 package com.salesmanager.core.model.system;
 
-import java.io.Serializable;
+// Necessary imports from Jakarta namespace due to Spring Boot 3 upgrade
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -27,8 +27,6 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 /**
  * Merchant configuration information
  * 
- * @author Carl Samson
- *
  */
 @Entity
 @EntityListeners(value = AuditListener.class)
@@ -37,9 +35,6 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 public class MerchantConfiguration extends SalesManagerEntity<Long, MerchantConfiguration>
     implements Serializable, Auditable {
 
-  /**
-   * 
-   */
   private static final long serialVersionUID = 4246917986731953459L;
 
   @Id
@@ -60,11 +55,10 @@ public class MerchantConfiguration extends SalesManagerEntity<Long, MerchantConf
   private String key;
 
   /**
-   * activate and deactivate configuration
+   * Activate and deactivate configuration
    */
   @Column(name = "ACTIVE", nullable = true)
   private Boolean active = new Boolean(false);
-
 
   @Column(name = "VALUE")
   @Type(type = "org.hibernate.type.TextType")
@@ -109,8 +103,6 @@ public class MerchantConfiguration extends SalesManagerEntity<Long, MerchantConf
     this.id = id;
   }
 
-
-
   public MerchantStore getMerchantStore() {
     return merchantStore;
   }
@@ -134,6 +126,4 @@ public class MerchantConfiguration extends SalesManagerEntity<Long, MerchantConf
   public void setActive(Boolean active) {
     this.active = active;
   }
-
-
 }
